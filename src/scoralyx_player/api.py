@@ -5,6 +5,7 @@ import urllib.error
 import urllib.request
 from typing import Any
 
+from . import __version__
 from .config import Config
 
 
@@ -20,7 +21,7 @@ class ScoralyxApi:
         self.config = config
 
     def request(self, method: str, url: str, payload: dict | None = None, token: str = "") -> dict:
-        headers = {"Accept": "application/json", "User-Agent": "Scoralyx-Player/0.1.0"}
+        headers = {"Accept": "application/json", "User-Agent": f"Scoralyx-Player/{__version__}"}
         body = None
         if payload is not None:
             headers["Content-Type"] = "application/json; charset=utf-8"
@@ -49,7 +50,7 @@ class ScoralyxApi:
             "action": "register",
             "installation_id": installation_id,
             "machine_name": machine_name,
-            "player_version": "0.1.0",
+            "player_version": __version__,
         })
 
     def enrollment_status(self, installation_id: str, secret: str) -> dict:

@@ -2,7 +2,7 @@
 
 Client Linux de l'écosystème Scoralyx. La première version vise Debian 13 et les distributions Linux disposant de Python 3.11+, de systemd et d'un navigateur Chromium compatible.
 
-Version : **0.1.0** (première version de développement, SemVer). Le choix de licence reste à fixer avant publication publique.
+Version : **0.2.0** (installateur interactif, SemVer). Le choix de licence reste à fixer avant publication publique.
 
 ## Périmètre de cette version
 
@@ -26,34 +26,29 @@ Le Player ne reçoit pas l'URL complète de l'affichage. Il la construit depuis 
 
 ## Configuration
 
-Copier `config.example.toml` vers `~/.config/scoralyx-player/config.toml`, puis régler au minimum `server.site_url` et `player.machine_name`. Le nom machine doit être stable et unique. Le fichier d'état, qui contient le jeton, doit rester lisible uniquement par le compte Linux exécutant le Player.
+Depuis le répertoire du projet, lancer l'installateur avec le compte Linux qui ouvre la session graphique :
 
 ```sh
-python3 -m venv ~/.local/share/scoralyx-player/venv
-~/.local/share/scoralyx-player/venv/bin/pip install .
-~/.local/share/scoralyx-player/venv/bin/scoralyx-player --config ~/.config/scoralyx-player/config.toml run
+bash install.sh
 ```
 
-Le compte Linux doit disposer d'une session graphique fonctionnelle. Chromium hérite des variables de cette session (`DISPLAY` ou `WAYLAND_DISPLAY`). Installer Chromium avec le gestionnaire de paquets de la distribution.
+L'installateur vérifie Python 3.11+, `venv` et un navigateur Chromium. Sur Debian/Ubuntu, il peut installer les paquets système manquants avec `apt` et `sudo`. Il demande l'URL du site Scoralyx et le nom unique du Player, écrit la configuration protégée, installe le Player dans un environnement Python isolé et prépare son service systemd utilisateur. Le service est activé immédiatement si la session systemd utilisateur est disponible.
 
-Dans une première console, surveiller le code d'appairage ; dans SPIP, autoriser ensuite le Player et l'associer à un écran. Le Player détecte l'autorisation automatiquement.
+Le compte doit disposer d'une session graphique fonctionnelle, avec connexion automatique du bureau configurée sur le mini-PC. Le Player s'enrôle ensuite auprès du serveur. Dans SPIP, autoriser le Player et l'associer à un écran ; surveiller le code avec :
+
+```sh
+journalctl --user -u scoralyx-player.service -f
+```
+
+L'installateur enregistre les fichiers dans `~/.config/scoralyx-player/`, `~/.local/share/scoralyx-player/` et `~/.local/state/scoralyx-player/`. Il ne configure pas la connexion automatique du bureau, le réveil BIOS ni la mise hors tension physique de l'écran.
+
+Pour vérifier l'état de l'enrôlement :
 
 ```sh
 ~/.local/share/scoralyx-player/venv/bin/scoralyx-player --config ~/.config/scoralyx-player/config.toml status
 ```
 
-## Service systemd utilisateur
-
-Après installation dans le compte qui ouvre la session graphique, adapter `deploy/systemd/scoralyx-player.service` puis l'activer :
-
-```sh
-mkdir -p ~/.config/systemd/user
-cp deploy/systemd/scoralyx-player.service ~/.config/systemd/user/
-systemctl --user daemon-reload
-systemctl --user enable --now scoralyx-player.service
-```
-
-Le service doit être lancé dans la session graphique du compte dédié, afin que Chromium accède au serveur d'affichage. Ce service ne configure pas la connexion automatique du bureau ni le réveil BIOS.
+Sur une distribution sans `apt`, installer Python 3.11+, le module `venv`, systemd et Chromium avant de lancer l'installateur. La compatibilité dépend aussi de la disponibilité d'un navigateur Chromium exécutable dans la session graphique.
 
 ## Développement et tests
 
