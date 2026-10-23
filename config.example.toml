@@ -1,0 +1,20 @@
+[server]
+site_url = "https://scoralyx.example.org"
+# Pour un serveur HTTP de test isolé uniquement, passer cette option à true.
+allow_insecure_http = false
+
+[player]
+machine_name = "clubhouse-01"
+browser = "chromium"
+
+[paths]
+display = "/spip.php?page=affichage_ecran"
+state = "~/.local/state/scoralyx-player/state.json"
+
+[intervals]
+configuration = 60
+heartbeat = 60
+actualisation = 60
+enrollment = 15
+request_timeout = 15
+

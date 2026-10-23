@@ -1,0 +1,15 @@
+[Unit]
+Description=Scoralyx Player
+After=graphical-session.target
+Wants=graphical-session.target
+
+[Service]
+Type=simple
+Environment=PATH=%h/.local/share/scoralyx-player/venv/bin:/usr/bin:/bin
+ExecStart=/usr/bin/env scoralyx-player --config %h/.config/scoralyx-player/config.toml run
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=graphical-session.target
+
