@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-VERSION="0.2.0"
+VERSION="0.3.0"
 PROJECT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/scoralyx-player"
 DATA_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/scoralyx-player"
@@ -86,6 +86,30 @@ if [[ -f "$CONFIG_DIR/config.toml" ]]; then
     [[ "$answer" =~ ^[oO]$ ]] || die "Installation annulée ; configuration existante conservée."
 fi
 
+RTCWAKE_ENABLED=false
+if command -v rtcwake >/dev/null 2>&1; then
+    printf '\nrtcwake est présent. Le test suivant programme brièvement une alarme RTC sans mettre la machine en veille.\n'
+    if command -v sudo >/dev/null 2>&1; then
+        if sudo -v \
+            && sudo rtcwake --mode no --seconds 300 \
+            && RTC_ALARM="$(LC_ALL=C sudo rtcwake --mode show 2>/dev/null)" \
+            && [[ "$RTC_ALARM" =~ alarm:[[:space:]]on ]]; then
+            sudo rtcwake --mode disable >/dev/null 2>&1 || true
+            read -r -p "Le BIOS/UEFI est-il réglé pour réveiller le mini-PC après un arrêt électrique (S5) ? [o/N] " answer
+            if [[ "$answer" =~ ^[oO]$ ]]; then
+                RTCWAKE_ENABLED=true
+            fi
+        else
+            sudo rtcwake --mode disable >/dev/null 2>&1 || true
+            printf 'Le test de programmation de l’alarme RTC a échoué ; le Player conservera la machine allumée et utilisera l’écran noir hors plage.\n'
+        fi
+    else
+        printf 'sudo est absent ; le Player ne peut pas valider le réveil RTC et utilisera l’écran noir hors plage.\n'
+    fi
+else
+    printf 'rtcwake est absent ; le Player conservera la machine allumée et utilisera l’écran noir hors plage.\n'
+fi
+
 info "Installation du Player et génération de la configuration"
 mkdir -p "$CONFIG_DIR" "$DATA_DIR" "$STATE_DIR" "$SYSTEMD_DIR"
 chmod 700 "$CONFIG_DIR" "$DATA_DIR" "$STATE_DIR"
@@ -93,7 +117,7 @@ chmod 700 "$CONFIG_DIR" "$DATA_DIR" "$STATE_DIR"
 "$DATA_DIR/venv/bin/python" -m pip install --upgrade pip
 "$DATA_DIR/venv/bin/python" -m pip install "$PROJECT_DIR"
 
-SITE_URL="$SITE_URL" MACHINE_NAME="$MACHINE_NAME" BROWSER="$BROWSER" ALLOW_HTTP="$ALLOW_HTTP" CONFIG_DIR="$CONFIG_DIR" STATE_DIR="$STATE_DIR" "$PYTHON" - <<'PY'
+SITE_URL="$SITE_URL" MACHINE_NAME="$MACHINE_NAME" BROWSER="$BROWSER" ALLOW_HTTP="$ALLOW_HTTP" RTCWAKE_ENABLED="$RTCWAKE_ENABLED" CONFIG_DIR="$CONFIG_DIR" STATE_DIR="$STATE_DIR" "$PYTHON" - <<'PY'
 import os
 from pathlib import Path
 
@@ -111,11 +135,30 @@ config.write_text(
     '[paths]\n'
     'display = "/spip.php?page=affichage_ecran"\n'
     f"state = {quote(str(Path(os.environ['STATE_DIR']) / 'state.json'))}\n\n"
-    '[intervals]\nconfiguration = 60\nheartbeat = 60\nactualisation = 60\nenrollment = 15\nrequest_timeout = 15\n',
+    '[intervals]\nconfiguration = 60\nheartbeat = 60\nactualisation = 60\nenrollment = 15\nrequest_timeout = 15\n'
+    '[power]\n'
+    f"rtcwake_enabled = {os.environ['RTCWAKE_ENABLED']}\n",
     encoding='utf-8',
 )
 config.chmod(0o600)
 PY
+
+if [[ "$RTCWAKE_ENABLED" == true ]]; then
+    PLAYER_USER="$(id -un)"
+    [[ "$PLAYER_USER" =~ ^[a-zA-Z0-9_-]+\$?$ ]] || die "Nom de compte Linux non compatible avec la règle sudoers générée."
+    info "Installation du contrôle RTC à privilèges limités"
+    sudo install -D -o root -g root -m 0755 "$PROJECT_DIR/deploy/power/scoralyx-player-rtcwake" /usr/local/sbin/scoralyx-player-rtcwake
+    SUDOERS_TEMP="$(mktemp)"
+    printf '%s ALL=(root) NOPASSWD: /usr/local/sbin/scoralyx-player-rtcwake *\n' "$PLAYER_USER" > "$SUDOERS_TEMP"
+    if ! sudo visudo -cf "$SUDOERS_TEMP" >/dev/null; then
+        rm -f "$SUDOERS_TEMP"
+        die "La règle sudoers RTC est invalide."
+    fi
+    sudo install -o root -g root -m 0440 "$SUDOERS_TEMP" /etc/sudoers.d/scoralyx-player
+    rm -f "$SUDOERS_TEMP"
+elif command -v sudo >/dev/null 2>&1 && sudo -n true >/dev/null 2>&1; then
+    sudo rm -f /etc/sudoers.d/scoralyx-player /usr/local/sbin/scoralyx-player-rtcwake
+fi
 
 cat > "$SYSTEMD_DIR/scoralyx-player.service" <<EOF
 [Unit]
@@ -155,4 +198,5 @@ Configuration : $CONFIG_DIR/config.toml
 État du Player : $DATA_DIR/venv/bin/scoralyx-player --config $CONFIG_DIR/config.toml status
 
 Le démarrage automatique nécessite une session graphique ouverte sur ce compte.
+Mode RTC : $RTCWAKE_ENABLED
 EOF

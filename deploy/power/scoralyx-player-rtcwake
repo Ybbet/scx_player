@@ -1,0 +1,20 @@
+#!/bin/sh
+set -eu
+
+if [ "$#" -ne 1 ] || ! printf '%s' "$1" | grep -Eq '^[0-9]{1,12}$'; then
+    echo "Usage: scoralyx-player-rtcwake <wake-epoch>" >&2
+    exit 64
+fi
+
+now=$(date +%s)
+if [ "$1" -le "$((now + 60))" ] || [ "$1" -gt "$((now + 2592000))" ]; then
+    echo "Wake time must be between 60 seconds and 30 days from now." >&2
+    exit 65
+fi
+
+rtcwake_bin=$(command -v rtcwake) || {
+    echo "rtcwake is unavailable." >&2
+    exit 69
+}
+
+exec "$rtcwake_bin" --auto --mode off --time "$1"

@@ -22,6 +22,7 @@ class Config:
     trigger_interval: int = 60
     enrollment_interval: int = 15
     request_timeout: int = 15
+    rtcwake_enabled: bool = False
     config_path: Path = DEFAULT_CONFIG
     state_path: Path = DEFAULT_STATE
 
@@ -34,6 +35,7 @@ class Config:
         server = data.get("server", {})
         paths = data.get("paths", {})
         intervals = data.get("intervals", {})
+        power = data.get("power", {})
         site_url = str(server.get("site_url", "")).strip().rstrip("/")
         machine_name = str(player.get("machine_name", "")).strip()
         if not site_url.startswith(("https://", "http://")):
@@ -45,6 +47,9 @@ class Config:
             raise ValueError("HTTPS est requis. Pour un environnement de test uniquement, activer server.allow_insecure_http.")
         if not machine_name:
             raise ValueError("player.machine_name est obligatoire.")
+        rtcwake_enabled = power.get("rtcwake_enabled", False)
+        if not isinstance(rtcwake_enabled, bool):
+            raise ValueError("power.rtcwake_enabled doit être un booléen TOML.")
         parsed = urlsplit(site_url)
         if parsed.username or parsed.password or parsed.query or parsed.fragment:
             raise ValueError("server.site_url ne doit contenir ni identifiants, ni paramètres, ni fragment.")
@@ -60,6 +65,7 @@ class Config:
             trigger_interval=_positive(intervals.get("actualisation", 60), "intervals.actualisation"),
             enrollment_interval=_positive(intervals.get("enrollment", 15), "intervals.enrollment"),
             request_timeout=_positive(intervals.get("request_timeout", 15), "intervals.request_timeout"),
+            rtcwake_enabled=rtcwake_enabled,
             config_path=config_path,
             state_path=state_path,
         )

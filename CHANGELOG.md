@@ -1,5 +1,12 @@
 # Journal des modifications
 
+## 0.3.0 — gestion du cycle d'alimentation RTC
+
+- Applique `state.next_start` de `scx_ecrans` pour programmer un réveil RTC au prochain démarrage attendu et éteindre la machine quand l'état passe à `off`.
+- L'installateur vérifie la présence de `rtcwake`, teste la programmation d'une alarme sans suspendre la machine et demande confirmation du réglage BIOS/UEFI.
+- Installe un helper root limité à l'arrêt avec réveil RTC ; si la capacité n'est pas utilisable, le Player reste allumé et affiche une page noire hors plage.
+- Émet `actualisation` uniquement lorsque l'écran est attendu `on`.
+
 ## 0.2.0 — installation interactive
 
 - Ajoute `install.sh` pour vérifier et installer les prérequis, demander l'URL Scoralyx et le nom du Player, écrire la configuration, puis préparer et activer le service systemd utilisateur.

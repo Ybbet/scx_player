@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 import signal
 import socket
+import subprocess
 import time
 import uuid
 from datetime import datetime, timezone
@@ -11,16 +12,18 @@ from . import API_VERSION, __version__
 from .api import ApiError, ScoralyxApi
 from .browser import BLACK_PAGE, Browser
 from .config import Config
+from .power import RtcWakePoweroff, wake_epoch
 from .state import PlayerState
 
 LOG = logging.getLogger(__name__)
 
 
 class Player:
-    def __init__(self, config: Config, api: ScoralyxApi | None = None, browser: Browser | None = None):
+    def __init__(self, config: Config, api: ScoralyxApi | None = None, browser: Browser | None = None, power=None):
         self.config = config
         self.api = api or ScoralyxApi(config)
         self.browser = browser or Browser(config.browser, config.state_path.parent / "chromium-profile")
+        self.power = power or RtcWakePoweroff()
         self.state = PlayerState.load(config.state_path)
         if not self.state.installation_id:
             self.state.installation_id = str(uuid.uuid4())
@@ -32,6 +35,8 @@ class Player:
         self.last_trigger = 0.0
         self.last_event_state = ""
         self.startup_announced = False
+        self.pending_wake_epoch: int | None = None
+        self.last_poweroff_attempt: tuple[int, float] | None = None
         signal.signal(signal.SIGTERM, self.stop)
         signal.signal(signal.SIGINT, self.stop)
 
@@ -49,12 +54,14 @@ class Player:
                     continue
                 config = self._configuration()
                 now = time.monotonic()
-                if now - self.last_config >= self.config.config_interval or config is None:
+                if self._configuration_refresh_due(now, config):
                     config = self._fetch_configuration()
                 self._apply_state(config)
                 if now - self.last_heartbeat >= self.config.heartbeat_interval:
                     self._send_heartbeat(config)
-                if "actualisation" in config.get("capabilities", {}).get("triggers", []) and now - self.last_trigger >= self.config.trigger_interval:
+                if self.pending_wake_epoch is not None:
+                    self._poweroff_for_wakeup(self.pending_wake_epoch)
+                if getattr(self, "player_state", "off") == "on" and "actualisation" in config.get("capabilities", {}).get("triggers", []) and now - self.last_trigger >= self.config.trigger_interval:
                     self._send_trigger()
                 backoff = 2
                 self._wait(1)
@@ -110,6 +117,21 @@ class Player:
     def _configuration(self) -> dict | None:
         return getattr(self, "server_configuration", None)
 
+    def _configuration_refresh_due(self, now: float, config: dict | None) -> bool:
+        if config is None or now - self.last_config >= self.config.config_interval:
+            return True
+        state = config.get("state") or {}
+        transition = state.get("next_stop") if state.get("expected") == "on" else state.get("next_start")
+        if not transition:
+            return False
+        try:
+            when = datetime.fromisoformat(str(transition).replace("Z", "+00:00"))
+            if when.tzinfo is None:
+                return False
+            return (when.astimezone(timezone.utc) - datetime.now(timezone.utc)).total_seconds() <= 15
+        except ValueError:
+            return False
+
     def _fetch_configuration(self) -> dict:
         config = self.api.configuration(self.state.screen_id, self.state.token)
         if config.get("api_version") != API_VERSION:
@@ -146,10 +168,32 @@ class Player:
             LOG.info("Écran logique éteint : navigateur placé sur un écran noir.")
         self.display_state = "visible" if expected == "on" else "blank"
         self.player_state = expected
+        self.pending_wake_epoch = None
+        if expected == "off" and self.config.rtcwake_enabled:
+            next_start = (config.get("state") or {}).get("next_start")
+            try:
+                if next_start:
+                    self.pending_wake_epoch = wake_epoch(next_start)
+            except ValueError as error:
+                LOG.warning("Arrêt RTC non programmé : %s", error)
         if expected != self.last_event_state:
             if expected == "on":
                 self._send_event("player_connected", "succes")
             self.last_event_state = expected
+
+    def _poweroff_for_wakeup(self, epoch: int) -> None:
+        now = time.monotonic()
+        if self.last_poweroff_attempt and self.last_poweroff_attempt[0] == epoch and now - self.last_poweroff_attempt[1] < 300:
+            return
+        self.last_poweroff_attempt = (epoch, now)
+        self._send_event("shutdown_requested", "info")
+        try:
+            self.power.poweroff_until(epoch)
+        except (OSError, subprocess.SubprocessError) as error:
+            LOG.error("Arrêt avec réveil RTC impossible ; maintien du Player sur écran noir : %s", error)
+            self._send_event("incident", "attention")
+            return
+        LOG.info("Réveil RTC programmé ; arrêt de la machine jusqu'à %s.", datetime.fromtimestamp(epoch).astimezone().isoformat())
 
     def _send_event(self, event_type: str, level: str) -> None:
         try:

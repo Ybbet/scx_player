@@ -18,3 +18,8 @@ actualisation = 60
 enrollment = 15
 request_timeout = 15
 
+[power]
+# Activé par l'installateur seulement si l'alarme RTC est programmable
+# et si le BIOS/UEFI autorise le réveil depuis l'arrêt électrique.
+rtcwake_enabled = false
+
