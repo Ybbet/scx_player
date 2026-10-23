@@ -1,5 +1,9 @@
 # Journal des modifications
 
+## 0.3.1 — documentation d'installation
+
+- Décrit les prérequis, la compatibilité, le réseau, le clonage GitHub, l'installation, l'enrôlement et les opérations courantes.
+
 ## 0.3.0 — gestion du cycle d'alimentation RTC
 
 - Applique `state.next_start` de `scx_ecrans` pour programmer un réveil RTC au prochain démarrage attendu et éteindre la machine quand l'état passe à `off`.
