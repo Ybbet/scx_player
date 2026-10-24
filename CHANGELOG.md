@@ -1,5 +1,9 @@
 # Journal des modifications
 
+## 0.3.4 — compatibilité écosystème
+
+- Regroupe dans une section dédiée du README les versions minimales des plugins nécessaires à la compatibilité avec le Player.
+
 ## 0.3.3 — documentation
 
 - Reformule les consignes du README à l’infinitif.

@@ -1,8 +1,8 @@
 # Scoralyx Player
 
-Scoralyx Player est le lecteur kiosque Linux de l’écosystème Scoralyx. Il ouvre dans Chromium la page d’affichage du club, en plein écran, avec le paramètre `ecran=<identifiant>`. Le contenu affiché est choisi par le serveur Scoralyx ; le Player applique les horaires et transmet au serveur les heartbeats, événements et déclenchements prévus par le contrat `scx_ecrans`.
+Scoralyx Player est le lecteur kiosque Linux de l’écosystème Scoralyx. Il ouvre dans Chromium la page d’affichage du club, en plein écran, avec le paramètre `ecran=<identifiant>`. Le contenu affiché est choisi par le serveur Scoralyx ; le Player applique les horaires et transmet au serveur les heartbeats, événements et déclenchements prévus par le contrat d’écran.
 
-Version : **0.3.3**. La numérotation suit SemVer. Licence : GNU GPL v3 ou ultérieure (`GPL-3.0-or-later`). Voir le fichier [`LICENSE`](LICENSE).
+Version : **0.3.4**. La numérotation suit SemVer. Licence : GNU GPL v3 ou ultérieure (`GPL-3.0-or-later`). Voir le fichier [`LICENSE`](LICENSE).
 
 ## Compatibilité et prérequis
 
@@ -18,6 +18,19 @@ Version : **0.3.3**. La numérotation suit SemVer. Licence : GNU GPL v3 ou ulté
 Le projet ne fixe pas encore de seuil minimum de processeur, de mémoire ou d’espace disque validé. La machine doit pouvoir exécuter Debian 13 avec une session graphique et Chromium à la résolution de l’écran visé. Cette configuration reste à valider sur le mini-PC cible.
 
 L’accès réseau est nécessaire pendant l’installation pour cloner le dépôt GitHub et, si besoin, récupérer les paquets système sur les dépôts de la distribution ainsi que les outils de construction Python sur PyPI. Au fonctionnement, le Player doit pouvoir accéder au serveur Scoralyx depuis le réseau local ou Internet, selon son hébergement. Un serveur accessible uniquement en HTTPS est attendu en production.
+
+## Compatibilité avec l’écosystème Scoralyx
+
+Pour utiliser le Player avec un écran Scoralyx, installer sur le site les composants et versions de référence suivants :
+
+| Composant | Version de référence | Rôle dans l’intégration |
+|---|---:|---|
+| SPIP | 4.4.x | Version requise par le plugin de gestion des écrans. |
+| `scx_core` | 0.1.1 ou supérieure | Dépendance requise par les plugins de gestion des écrans et d’affichage. |
+| `scx_ecrans` | 0.3.0 | Fournir l’API Player v1 pour l’enrôlement, les heartbeats, les états et les déclenchements. |
+| `scx_affichage` | 0.2.14 | Fournir la page `affichage_ecran` et accepter le paramètre `ecran=<identifiant>`. |
+
+Le contrat retenu suppose que l’identifiant de l’écran (`screen.id`) est aussi celui de la composition. Les versions indiquées correspondent à la base de versions utilisée pour valider cette intégration. Les autres plugins métier dépendent des contenus souhaités sur le site et ne sont pas des prérequis directs du Player.
 
 ## Récupérer les sources et installer
 
@@ -60,7 +73,7 @@ Après l’installation, le Player envoie une demande d’enrôlement à Scoraly
 journalctl --user -u scoralyx-player.service -f
 ```
 
-Une fois autorisé, le Player récupère son identifiant d’écran et ouvre la page kiosque avec `ecran=<screen.id>`. Il interroge ensuite l’API `scx_ecrans` pour connaître son état et ses horaires.
+Une fois autorisé, le Player récupère son identifiant d’écran et ouvre la page kiosque avec `ecran=<screen.id>`. Il interroge ensuite le serveur pour connaître son état et ses horaires.
 
 ## Démarrage et commandes utiles
 
@@ -94,14 +107,6 @@ La programmation d’une alarme ne garantit pas que le mini-PC se réveillera ap
 - **Le service ne démarre pas** : ouvrir la session graphique du compte ayant lancé l’installation, puis consulter le statut et les journaux du service.
 - **La machine ne se réveille pas** : désactiver le mode RTC dans `~/.config/scoralyx-player/config.toml` (`[power]`, `rtcwake_enabled = false`), puis redémarrer le service avec `systemctl --user restart scoralyx-player.service`. La machine restera alors allumée hors plage.
 - **Le réveil RTC a été activé à tort** : désactiver le mode dans la configuration et redémarrer le service. Pour retirer ensuite le helper privilégié, exécuter `sudo rm /etc/sudoers.d/scoralyx-player /usr/local/sbin/scoralyx-player-rtcwake`.
-
-## Contrats Scoralyx utilisés
-
-- API technique `scx_ecrans` v1 ;
-- page kiosque `scx_affichage` avec `ecran=<identifiant>` ;
-- `screen.id` et identifiant de composition sont supposés identiques dans le déploiement retenu.
-
-Le Player construit l’URL d’affichage à partir de `server.site_url`, du chemin local `paths.display` et de `screen.id`. Il ne reçoit pas de commande système du serveur et ne choisit pas le contenu des diapositives.
 
 ## Développement et tests
 
