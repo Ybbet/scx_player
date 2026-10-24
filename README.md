@@ -2,7 +2,7 @@
 
 Scoralyx Player est le lecteur kiosque Linux de l’écosystème Scoralyx. Il ouvre dans Chromium la page d’affichage du club, en plein écran, avec le paramètre `ecran=<identifiant>`. Le contenu affiché est choisi par le serveur Scoralyx ; le Player applique les horaires et transmet au serveur les heartbeats, événements et déclenchements prévus par le contrat d’écran.
 
-Version : **0.3.4**. La numérotation suit SemVer. Licence : GNU GPL v3 ou ultérieure (`GPL-3.0-or-later`). Voir le fichier [`LICENSE`](LICENSE).
+Version : **0.4.0**. La numérotation suit SemVer. Licence : GNU GPL v3 ou ultérieure (`GPL-3.0-or-later`). Voir le fichier [`LICENSE`](LICENSE).
 
 ## Compatibilité et prérequis
 
@@ -94,6 +94,24 @@ journalctl --user -u scoralyx-player.service -f
 
 Une fois autorisé, le Player récupère son identifiant d’écran et ouvre la page kiosque avec `ecran=<screen.id>`. Il interroge ensuite le serveur pour connaître son état et ses horaires.
 
+## Renouveler l’enrôlement
+
+Le renouvellement nécessite d’abord une action dans l’administration de Scoralyx Serveur : révoquer l’ancien Player s’il est déjà autorisé. Si sa demande est encore en attente, la refuser ou la supprimer pour éviter de conserver une demande orpheline. Le script local ne peut pas révoquer un Player sur le serveur.
+
+Depuis le compte Linux qui exécute le service, dans le dépôt cloné, lancer :
+
+```sh
+bash renew-enrollment.sh
+```
+
+Le script demande de confirmer l’action côté serveur, arrête le service, efface l’état local (identifiant d’installation et jeton), puis relance le Player. Une nouvelle demande d’enrôlement est créée ; consulter son code avec :
+
+```sh
+journalctl --user -u scoralyx-player.service -f
+```
+
+Pour une configuration enregistrée ailleurs que dans `~/.config/scoralyx-player/config.toml`, indiquer son chemin en argument. Le script conserve l’URL du serveur, le nom du Player et les autres paramètres de configuration.
+
 ## Démarrage et commandes utiles
 
 Le service démarre avec la session graphique de l’utilisateur. Pour relancer le kiosque après un démarrage électrique, configurer la connexion automatique de cette session dans l’environnement de bureau.
@@ -122,6 +140,7 @@ La programmation d’une alarme ne garantit pas que le mini-PC se réveillera ap
 ## Dépannage
 
 - **Le code d’appairage n’apparaît pas** : vérifier le fonctionnement du service et l’accès du mini-PC à l’URL configurée ; consulter `journalctl`.
+- **Renouveler l’enrôlement** : révoquer d’abord l’ancien Player dans l’administration SPIP, puis lancer `bash renew-enrollment.sh` depuis le compte Linux du Player.
 - **Le Player est autorisé mais l’écran ne s’affiche pas** : vérifier l’association à un écran dans SPIP, la session graphique et la présence de Chromium.
 - **Le service ne démarre pas** : ouvrir la session graphique du compte ayant lancé l’installation, puis consulter le statut et les journaux du service.
 - **La machine ne se réveille pas** : désactiver le mode RTC dans `~/.config/scoralyx-player/config.toml` (`[power]`, `rtcwake_enabled = false`), puis redémarrer le service avec `systemctl --user restart scoralyx-player.service`. La machine restera alors allumée hors plage.

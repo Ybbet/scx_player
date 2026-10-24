@@ -1,5 +1,10 @@
 # Journal des modifications
 
+## 0.4.0 — renouvellement de l’enrôlement
+
+- Ajoute `renew-enrollment.sh` pour réinitialiser l’état local et relancer une demande d’enrôlement après révocation ou refus côté serveur.
+- Documente les étapes de renouvellement et précise que la révocation distante se fait dans l’administration SPIP.
+
 ## 0.3.4 — compatibilité écosystème
 
 - Regroupe dans une section dédiée du README les versions minimales des plugins nécessaires à la compatibilité avec le Player.
