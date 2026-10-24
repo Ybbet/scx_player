@@ -19,6 +19,24 @@ Le projet ne fixe pas encore de seuil minimum de processeur, de mémoire ou d’
 
 L’accès réseau est nécessaire pendant l’installation pour cloner le dépôt GitHub et, si besoin, récupérer les paquets système sur les dépôts de la distribution ainsi que les outils de construction Python sur PyPI. Au fonctionnement, le Player doit pouvoir accéder au serveur Scoralyx depuis le réseau local ou Internet, selon son hébergement. Un serveur accessible uniquement en HTTPS est attendu en production.
 
+### Préparer les droits administrateur sous Debian
+
+L’installation des paquets système nécessite un compte membre du groupe `sudo`. Vérifier les groupes du compte :
+
+```sh
+groups
+```
+
+Si `sudo` n’apparaît pas, relever le nom du compte avec `id -un`, puis ouvrir une session `root` et ajouter ce compte au groupe :
+
+```sh
+su -
+adduser <nom_utilisateur> sudo
+exit
+```
+
+Remplacer `<nom_utilisateur>` par le nom relevé avant le passage à `root`. Se déconnecter puis se reconnecter pour appliquer le changement, puis vérifier de nouveau avec `groups`. Cette opération nécessite le mot de passe `root`. En l’absence de ce mot de passe, demander à un administrateur d’effectuer l’ajout.
+
 ## Compatibilité avec l’écosystème Scoralyx
 
 Pour utiliser le Player avec un écran Scoralyx, installer sur le site les composants et versions de référence suivants :
