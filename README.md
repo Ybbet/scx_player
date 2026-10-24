@@ -2,7 +2,7 @@
 
 Scoralyx Player est le lecteur kiosque Linux de l’écosystème Scoralyx. Il ouvre dans Chromium la page d’affichage du club, en plein écran, avec le paramètre `ecran=<identifiant>`. Le contenu affiché est choisi par le serveur Scoralyx ; le Player applique les horaires et transmet au serveur les heartbeats, événements et déclenchements prévus par le contrat `scx_ecrans`.
 
-Version : **0.3.1**. La numérotation suit SemVer. Le choix de licence reste à fixer avant une publication publique.
+Version : **0.3.3**. La numérotation suit SemVer. Licence : GNU GPL v3 ou ultérieure (`GPL-3.0-or-later`). Voir le fichier [`LICENSE`](LICENSE).
 
 ## Compatibilité et prérequis
 
@@ -21,32 +21,32 @@ L’accès réseau est nécessaire pendant l’installation pour cloner le dép�
 
 ## Récupérer les sources et installer
 
-L’installation doit être lancée depuis le compte Linux qui ouvrira la session graphique. **Ne lance pas l’installateur avec `sudo`** : il utilise le compte courant pour Chromium et le service systemd utilisateur.
+Lancer l’installation depuis le compte Linux qui ouvrira la session graphique. **Ne pas lancer l’installateur avec `sudo`** : Chromium et le service systemd utilisateur utilisent le compte courant.
 
-1. Ouvre un terminal sur le mini-PC. Installe Git si nécessaire :
+1. Ouvrir un terminal sur le mini-PC. Installer Git si nécessaire :
 
    ```sh
    sudo apt update
    sudo apt install git
    ```
 
-2. Clone le dépôt GitHub. Remplace `<organisation-ou-utilisateur>` par le propriétaire du dépôt :
+2. Cloner le dépôt GitHub. Remplacer `<organisation-ou-utilisateur>` par le propriétaire du dépôt :
 
    ```sh
    git clone https://github.com/<organisation-ou-utilisateur>/scx_player.git
    cd scx_player
    ```
 
-3. Lance l’installateur interactif :
+3. Lancer l’installateur interactif :
 
    ```sh
    bash install.sh
    ```
 
-4. Réponds aux questions de l’installateur :
+4. Répondre aux questions de l’installateur :
 
-   - **URL de Scoralyx Serveur** : indique l’URL de base du site, par exemple `https://club.example.org`, sans ajouter `spip.php` ni le chemin de la page d’affichage ;
-   - **nom du Player** : choisis un nom stable et unique, par exemple `clubhouse-01` ;
+   - **URL de Scoralyx Serveur** : indiquer l’URL de base du site, par exemple `https://club.example.org`, sans ajouter `spip.php` ni le chemin de la page d’affichage ;
+   - **nom du Player** : choisir un nom stable et unique, par exemple `clubhouse-01` ;
    - **prérequis** : si Python `venv` ou Chromium manque, l’installateur propose de les installer avec `apt` ;
    - **réveil RTC** : si `rtcwake` est présent, l’installateur vérifie qu’une alarme peut être programmée puis demande si le BIOS/UEFI permet le réveil après un arrêt électrique.
 
@@ -54,7 +54,7 @@ L’installateur crée un environnement Python isolé, écrit la configuration l
 
 ## Autoriser et associer l’écran dans SPIP
 
-Après l’installation, le Player envoie une demande d’enrôlement à Scoralyx Serveur. Dans l’administration SPIP, autorise ce Player puis associe-le à un écran existant ou crée l’écran correspondant. Le code d’appairage apparaît dans les journaux :
+Après l’installation, le Player envoie une demande d’enrôlement à Scoralyx Serveur. Dans l’administration SPIP, autoriser ce Player, puis l’associer à un écran existant ou créer l’écran correspondant. Consulter les journaux pour obtenir le code d’appairage :
 
 ```sh
 journalctl --user -u scoralyx-player.service -f
@@ -64,7 +64,7 @@ Une fois autorisé, le Player récupère son identifiant d’écran et ouvre la 
 
 ## Démarrage et commandes utiles
 
-Le service démarre avec la session graphique de l’utilisateur. Pour que le kiosque reparte après un démarrage électrique, configure la connexion automatique de cette session dans l’environnement de bureau.
+Le service démarre avec la session graphique de l’utilisateur. Pour relancer le kiosque après un démarrage électrique, configurer la connexion automatique de cette session dans l’environnement de bureau.
 
 ```sh
 systemctl --user status scoralyx-player.service
@@ -72,7 +72,7 @@ journalctl --user -u scoralyx-player.service -f
 ~/.local/share/scoralyx-player/venv/bin/scoralyx-player --config ~/.config/scoralyx-player/config.toml status
 ```
 
-Si l’installateur n’a pas pu joindre le gestionnaire systemd utilisateur, ouvre la session graphique puis active le service :
+Si l’installateur n’a pas pu joindre le gestionnaire systemd utilisateur, ouvrez la session graphique puis activez le service :
 
 ```sh
 systemctl --user daemon-reload
@@ -85,15 +85,15 @@ Les fichiers sont placés dans `~/.config/scoralyx-player/`, `~/.local/share/sco
 
 Le serveur reste la source de vérité. Le Player applique `state.expected`, `next_start` et `next_stop` sans recalculer les créneaux ou exceptions. Lorsque le mode RTC est actif, il programme le prochain réveil puis arrête le mini-PC à l’état `off`. Le Player ne met pas séparément hors tension l’écran externe.
 
-La programmation d’une alarme ne garantit pas que le mini-PC se réveillera après un arrêt S5 : cela dépend du BIOS/UEFI, de la carte mère et de l’horloge RTC. Le test de l’installateur vérifie la programmation de l’alarme, pas le réveil complet depuis l’arrêt. Vérifie ce comportement sur le matériel avant de compter sur le démarrage automatique. Lorsque le mode RTC n’est pas utilisable, la machine reste allumée et Chromium affiche une page noire hors plage.
+La programmation d’une alarme ne garantit pas que le mini-PC se réveillera après un arrêt S5 : cela dépend du BIOS/UEFI, de la carte mère et de l’horloge RTC. Le test de l’installateur vérifie la programmation de l’alarme, pas le réveil complet depuis l’arrêt. Vérifier ce comportement sur le matériel avant de compter sur le démarrage automatique. Lorsque le mode RTC n’est pas utilisable, la machine reste allumée et Chromium affiche une page noire hors plage.
 
 ## Dépannage
 
-- **Le code d’appairage n’apparaît pas** : vérifie que le service fonctionne et que le mini-PC peut joindre l’URL configurée ; consulte `journalctl`.
-- **Le Player est autorisé mais l’écran ne s’affiche pas** : vérifie l’association à un écran dans SPIP, la session graphique et la présence de Chromium.
-- **Le service ne démarre pas** : vérifie que tu es dans la session graphique du compte ayant lancé l’installation, puis consulte son statut et ses journaux.
-- **La machine ne se réveille pas** : désactive le mode RTC dans `~/.config/scoralyx-player/config.toml` (`[power]`, `rtcwake_enabled = false`), puis redémarre le service avec `systemctl --user restart scoralyx-player.service`. La machine restera alors allumée hors plage.
-- **Le réveil RTC a été activé à tort** : désactive d’abord le mode dans la configuration et redémarre le service. Pour retirer ensuite le helper privilégié, exécute `sudo rm /etc/sudoers.d/scoralyx-player /usr/local/sbin/scoralyx-player-rtcwake`.
+- **Le code d’appairage n’apparaît pas** : vérifier le fonctionnement du service et l’accès du mini-PC à l’URL configurée ; consulter `journalctl`.
+- **Le Player est autorisé mais l’écran ne s’affiche pas** : vérifier l’association à un écran dans SPIP, la session graphique et la présence de Chromium.
+- **Le service ne démarre pas** : ouvrir la session graphique du compte ayant lancé l’installation, puis consulter le statut et les journaux du service.
+- **La machine ne se réveille pas** : désactiver le mode RTC dans `~/.config/scoralyx-player/config.toml` (`[power]`, `rtcwake_enabled = false`), puis redémarrer le service avec `systemctl --user restart scoralyx-player.service`. La machine restera alors allumée hors plage.
+- **Le réveil RTC a été activé à tort** : désactiver le mode dans la configuration et redémarrer le service. Pour retirer ensuite le helper privilégié, exécuter `sudo rm /etc/sudoers.d/scoralyx-player /usr/local/sbin/scoralyx-player-rtcwake`.
 
 ## Contrats Scoralyx utilisés
 

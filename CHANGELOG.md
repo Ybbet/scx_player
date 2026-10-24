@@ -1,5 +1,16 @@
 # Journal des modifications
 
+## 0.3.3 — documentation
+
+- Reformule les consignes du README à l’infinitif.
+- Place le Player sous GNU GPL v3 ou ultérieure (`GPL-3.0-or-later`).
+- Ajoute le texte intégral de la licence dans `LICENSE`.
+
+## 0.3.2 — nettoyage du dépôt et documentation
+
+- Ignore les fichiers `.DS_Store` de macOS.
+- Exclut les fichiers `.DS_Store` et reformule le README sans tutoiement.
+
 ## 0.3.1 — documentation d'installation
 
 - Décrit les prérequis, la compatibilité, le réseau, le clonage GitHub, l'installation, l'enrôlement et les opérations courantes.
