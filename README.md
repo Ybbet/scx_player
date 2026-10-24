@@ -43,10 +43,10 @@ Lancer l’installation depuis le compte Linux qui ouvrira la session graphique.
    sudo apt install git
    ```
 
-2. Cloner le dépôt GitHub. Remplacer `<organisation-ou-utilisateur>` par le propriétaire du dépôt :
+2. Cloner le dépôt GitHub
 
    ```sh
-   git clone https://github.com/<organisation-ou-utilisateur>/scx_player.git
+   git clone https://github.com/Ybbet/scx_player.git
    cd scx_player
    ```
 
