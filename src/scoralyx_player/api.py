@@ -26,8 +26,7 @@ class ScoralyxApi:
         if payload is not None:
             headers["Content-Type"] = "application/json; charset=utf-8"
             body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
-        if token:
-            headers["Authorization"] = f"Bearer {token}"
+        headers.update(authenticated_headers(token))
         request = urllib.request.Request(url, data=body, headers=headers, method=method)
         try:
             with urllib.request.urlopen(request, timeout=self.config.request_timeout) as response:
@@ -41,9 +40,11 @@ class ScoralyxApi:
                 data = _decode(raw, error.code)
             except ApiError:
                 data = {}
-            raise ApiError(f"Réponse HTTP {error.code} de SPIP.", error.code, data) from error
-        except (urllib.error.URLError, TimeoutError, OSError) as error:
-            raise ApiError(f"SPIP est injoignable : {error}") from error
+            if token:
+                data = _redact_token(data, token)
+            raise ApiError(f"Réponse HTTP {error.code} de SPIP.", error.code, data) from None
+        except (urllib.error.URLError, TimeoutError, OSError):
+            raise ApiError("SPIP est injoignable.") from None
 
     def register(self, installation_id: str, machine_name: str) -> dict:
         return self.request("POST", self.config.api_url("api_ecran_enregistrement"), {
@@ -83,5 +84,30 @@ def _decode(raw: bytes, status: int) -> dict:
         raise ApiError("SPIP a renvoyé une réponse JSON invalide.", status) from error
     if not isinstance(value, dict):
         raise ApiError("La réponse JSON de SPIP doit être un objet.", status)
+    return value
+
+
+def authenticated_headers(token: str) -> dict[str, str]:
+    """Construire les headers communs aux requêtes avec le jeton définitif."""
+    if not token:
+        return {}
+    bearer = f"Bearer {token}"
+    return {
+        "Authorization": bearer,
+        "X-Scoralyx-Authorization": bearer,
+    }
+
+
+def _redact_token(value: Any, token: str) -> Any:
+    """Éviter qu'une réponse d'erreur du serveur ne réexpose le jeton."""
+    if isinstance(value, str):
+        return value.replace(token, "[REDACTED]")
+    if isinstance(value, list):
+        return [_redact_token(item, token) for item in value]
+    if isinstance(value, dict):
+        return {
+            key.replace(token, "[REDACTED]") if isinstance(key, str) else key: _redact_token(item, token)
+            for key, item in value.items()
+        }
     return value
 

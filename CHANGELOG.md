@@ -1,5 +1,10 @@
 # Journal des modifications
 
+## 0.4.1 — compatibilité des headers d’authentification
+
+- Envoie le jeton Bearer dans `Authorization` et `X-Scoralyx-Authorization` pour tous les appels authentifiés à l’API Player.
+- Centralise la construction de ces headers et ajoute des tests pour les endpoints, l’enrôlement, le premier appel après autorisation et la non-divulgation du jeton.
+
 ## 0.4.0 — renouvellement de l’enrôlement
 
 - Ajoute `renew-enrollment.sh` pour réinitialiser l’état local et relancer une demande d’enrôlement après révocation ou refus côté serveur.
