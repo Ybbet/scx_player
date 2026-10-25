@@ -2,7 +2,7 @@
 
 Scoralyx Player est le lecteur kiosque Linux de l’écosystème Scoralyx. Il ouvre dans Chromium la page d’affichage du club, en plein écran, avec le paramètre `ecran=<identifiant>`. Le contenu affiché est choisi par le serveur Scoralyx ; le Player applique les horaires et transmet au serveur les heartbeats, événements et déclenchements prévus par le contrat d’écran.
 
-Version : **0.4.1**. La numérotation suit SemVer. Licence : GNU GPL v3 ou ultérieure (`GPL-3.0-or-later`). Voir le fichier [`LICENSE`](LICENSE).
+Version : **0.5.0**. La numérotation suit SemVer. Licence : GNU GPL v3 ou ultérieure (`GPL-3.0-or-later`). Voir le fichier [`LICENSE`](LICENSE).
 
 ## Compatibilité et prérequis
 
@@ -16,6 +16,27 @@ Version : **0.4.1**. La numérotation suit SemVer. Licence : GNU GPL v3 ou ulté
 | Installation | `sudo` est nécessaire pour installer des paquets système. Il est aussi utilisé pour installer le helper RTC si le mode réveil matériel est activé. |
 
 Le projet ne fixe pas encore de seuil minimum de processeur, de mémoire ou d’espace disque validé. La machine doit pouvoir exécuter Debian 13 avec une session graphique et Chromium à la résolution de l’écran visé. Cette configuration reste à valider sur le mini-PC cible.
+
+### Préparation de la machine en outil Digital Signage
+
+L’installateur propose de configurer les conditions nécessaires à un affichage autonome. Après confirmation, le script configure l’ouverture automatique de session pour GDM, LightDM ou SDDM, puis installe un lancement automatique qui désactive la veille, l’extinction liée à l’inactivité et le verrouillage dans une session GNOME. Les changements d’ouverture automatique prennent effet au prochain démarrage. Aucun gestionnaire d’affichage n’est redémarré pendant l’installation.
+
+Le script est également utilisable seul depuis le dépôt cloné :
+
+```sh
+bash deploy/digital-signage/configure-digital-signage.sh --check
+bash deploy/digital-signage/configure-digital-signage.sh --configure
+```
+
+Ajouter `--user nom` pour désigner explicitement le compte de la session graphique. Le mode `--check` ne modifie rien et renvoie un code d’erreur si un prérequis vérifiable est manquant. Le mode `--configure` demande confirmation avant tout changement et nécessite `sudo` pour régler l’ouverture automatique. L’ouverture automatique supprime la demande de mot de passe au démarrage : réserver cette configuration à une machine dédiée et physiquement maîtrisée. Le script conserve une sauvegarde horodatée des fichiers de configuration qu’il remplace.
+
+Pour réappliquer les réglages GNOME depuis la session graphique :
+
+```sh
+bash deploy/digital-signage/configure-digital-signage.sh --apply-session
+```
+
+La détection n’implique pas que tous les environnements de bureau Linux soient automatiquement configurables. La désactivation persistante de la veille et du verrouillage est actuellement automatisée pour GNOME ; les autres environnements sont signalés et nécessitent une adaptation propre à leur gestionnaire. Si le script ne reconnaît pas le gestionnaire de connexion, configurer manuellement l’ouverture automatique de session.
 
 L’accès réseau est nécessaire pendant l’installation pour cloner le dépôt GitHub et, si besoin, récupérer les paquets système sur les dépôts de la distribution ainsi que les outils de construction Python sur PyPI. Au fonctionnement, le Player doit pouvoir accéder au serveur Scoralyx depuis le réseau local ou Internet, selon son hébergement. Un serveur accessible uniquement en HTTPS est attendu en production.
 
@@ -82,7 +103,8 @@ Lancer l’installation depuis le compte Linux qui ouvrira la session graphique.
    - **URL de Scoralyx Serveur** : indiquer l’URL de base du site, par exemple `https://club.example.org`, sans ajouter `spip.php` ni le chemin de la page d’affichage ;
    - **nom du Player** : choisir un nom stable et unique, par exemple `clubhouse-01` ;
    - **prérequis** : si Python `venv` ou Chromium manque, l’installateur propose de les installer avec `apt` ;
-   - **réveil RTC** : si `rtcwake` est présent, l’installateur vérifie qu’une alarme peut être programmée puis demande si le BIOS/UEFI permet le réveil après un arrêt électrique.
+   - **réveil RTC** : si `rtcwake` est présent, l’installateur vérifie qu’une alarme peut être programmée puis demande si le BIOS/UEFI permet le réveil après un arrêt électrique ;
+   - **préparation Digital Signage** : confirmer la configuration de l’ouverture automatique de session et la désactivation de la veille/verrouillage.
 
 L’installateur crée un environnement Python isolé, écrit la configuration locale et prépare le service systemd. En mode RTC, il installe aussi un helper root limité à la programmation du réveil et à l’arrêt de la machine. Si `rtcwake` est absent, si le test échoue ou si le réveil firmware n’est pas confirmé, le Player reste allumé et affiche une page noire lorsque l’état attendu est `off`.
 

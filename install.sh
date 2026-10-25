@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-VERSION="0.4.1"
+VERSION="0.5.0"
 PROJECT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/scoralyx-player"
 DATA_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/scoralyx-player"
@@ -160,6 +160,13 @@ elif command -v sudo >/dev/null 2>&1 && sudo -n true >/dev/null 2>&1; then
     sudo rm -f /etc/sudoers.d/scoralyx-player /usr/local/sbin/scoralyx-player-rtcwake
 fi
 
+info "Configuration des prérequis Digital Signage"
+if bash "$PROJECT_DIR/deploy/digital-signage/configure-digital-signage.sh" --configure --user "$(id -un)"; then
+    :
+else
+    printf 'La configuration automatique du bureau est incomplète. Le Player sera installé ; consulter les messages ci-dessus et lancer le script autonome après correction.\n'
+fi
+
 cat > "$SYSTEMD_DIR/scoralyx-player.service" <<EOF
 [Unit]
 Description=Scoralyx Player
@@ -197,6 +204,7 @@ Configuration : $CONFIG_DIR/config.toml
 État local protégé : $STATE_DIR/state.json
 État du Player : $DATA_DIR/venv/bin/scoralyx-player --config $CONFIG_DIR/config.toml status
 
-Le démarrage automatique nécessite une session graphique ouverte sur ce compte.
+L’ouverture automatique de session a été configurée si elle a été acceptée et si le gestionnaire est pris en charge.
+Sinon, maintenir une session graphique ouverte sur ce compte pour afficher le kiosque.
 Mode RTC : $RTCWAKE_ENABLED
 EOF

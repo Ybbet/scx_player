@@ -1,5 +1,12 @@
 # Journal des modifications
 
+## 0.5.0 — préparation Digital Signage
+
+- Ajoute un script autonome de diagnostic et de configuration des conditions de session graphique : ouverture automatique, veille, verrouillage et lancement au démarrage.
+- Intègre ce contrôle à l’installateur avec confirmation explicite et détection du gestionnaire de connexion.
+- Prend en charge la configuration d’ouverture automatique pour GDM, LightDM et SDDM ; applique les réglages de veille et de verrouillage GNOME au démarrage de la session.
+- Documente le contrôle, son lancement autonome et les limites selon l’environnement Linux détecté.
+
 ## 0.4.1 — compatibilité des headers d’authentification
 
 - Envoie le jeton Bearer dans `Authorization` et `X-Scoralyx-Authorization` pour tous les appels authentifiés à l’API Player.
