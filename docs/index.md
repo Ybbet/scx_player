@@ -27,7 +27,7 @@ Scoralyx Player transforme un mini-PC Linux relié à un écran en lecteur d’a
 
 ## Le « serveur Scoralyx », c’est le site internet du club
 
-Le nom **Scoralyx Serveur** désigne le site internet du club, installé sur un hébergement web compatible avec SPIP et complété par quelques plugins dédiés à l’écosystème. Ces plugins apportent notamment la gestion des écrans et la préparation des pages qui seront diffusées.
+Le nom **Scoralyx Serveur** désigne le site internet du club dédié à l’affichage de son planning. Il est installé sur un hébergement web compatible avec SPIP et complété par quelques plugins dédiés à l’écosystème. Ces plugins apportent notamment la gestion des écrans et la préparation des pages qui seront diffusées. Il s’agit d’un site spécialisé pour l’affichage, pas du site vitrine général du club présentant ses équipes, son actualité ou son historique.
 
 Ce site centralise les contenus et les horaires. Il se consulte et s’administre comme un site web ; aucun équipement serveur spécifique n’est à acheter pour le club.
 
@@ -77,6 +77,10 @@ Les informations utiles gagnent à être visibles là où les adhérents, les b�
 -   **3. Diffuser**
 
     Au démarrage de la session graphique, Chromium s’ouvre en plein écran et affiche la page de l’écran associé.
+
+-   **4. Contrôler**
+
+    Vérifier dans l’administration Scoralyx que le Player communique avec le site, puis contrôler sur l’écran que le planning et les diapositives s’affichent correctement.
 
 </div>
 
