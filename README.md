@@ -76,10 +76,10 @@ Pour prévisualiser le site documentaire avant publication :
 python3 -m venv .venv
 . .venv/bin/activate
 python -m pip install -r requirements-docs.txt
-mkdocs serve
+zensical serve
 ```
 
-Pour valider la génération sans lancer le serveur local : `mkdocs build --strict`.
+Pour valider la génération sans lancer le serveur local : `zensical build --strict`.
 
 Les publications suivent SemVer. La version est déclarée dans `pyproject.toml` et `src/scoralyx_player/__init__.py`. Le workflow GitHub vérifie leur cohérence et les tests avant de créer le tag et la release.
 
