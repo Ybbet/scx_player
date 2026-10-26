@@ -14,6 +14,7 @@ from .browser import BLACK_PAGE, Browser
 from .config import Config
 from .power import RtcWakePoweroff, wake_epoch
 from .state import PlayerState
+from .updater import install_release, installed_version, is_newer, latest_stable_version, restart_player
 
 LOG = logging.getLogger(__name__)
 
@@ -37,6 +38,10 @@ class Player:
         self.startup_announced = False
         self.pending_wake_epoch: int | None = None
         self.last_poweroff_attempt: tuple[int, float] | None = None
+        self.latest_stable: str | None = None
+        self.last_release_check = 0.0
+        self.last_package_check = 0.0
+        self.update_requests_seen: set[str] = set()
         signal.signal(signal.SIGTERM, self.stop)
         signal.signal(signal.SIGINT, self.stop)
 
@@ -48,6 +53,8 @@ class Player:
         backoff = 2
         while not self.stop_requested:
             try:
+                self._check_installed_package()
+                self._refresh_latest_release()
                 if not self.state.token:
                     self._enrollment_step()
                     self._wait(self.config.enrollment_interval)
@@ -56,9 +63,11 @@ class Player:
                 now = time.monotonic()
                 if self._configuration_refresh_due(now, config):
                     config = self._fetch_configuration()
+                    self._process_update(config.get("update"))
                 self._apply_state(config)
                 if now - self.last_heartbeat >= self.config.heartbeat_interval:
-                    self._send_heartbeat(config)
+                    heartbeat = self._send_heartbeat(config)
+                    self._process_update(heartbeat.get("update"))
                 if self.pending_wake_epoch is not None:
                     self._poweroff_for_wakeup(self.pending_wake_epoch)
                 if getattr(self, "player_state", "off") == "on" and "actualisation" in config.get("capabilities", {}).get("triggers", []) and now - self.last_trigger >= self.config.trigger_interval:
@@ -208,8 +217,8 @@ class Player:
         except ApiError:
             LOG.exception("Impossible de transmettre l'événement %s.", event_type)
 
-    def _send_heartbeat(self, config: dict) -> None:
-        self.api.heartbeat(self.state.screen_id, self.state.token, {
+    def _send_heartbeat(self, config: dict) -> dict:
+        payload = {
             "player_time": datetime.now().astimezone().isoformat(),
             "state": getattr(self, "player_state", "off"),
             "display_state": getattr(self, "display_state", "blank"),
@@ -219,8 +228,66 @@ class Player:
             "player_version": __version__,
             "browser_version": self.browser.version(),
             "configuration_version": self.state.configuration_version,
-        })
+        }
+        if self.latest_stable:
+            payload["latest_stable_version"] = self.latest_stable
+        response = self.api.heartbeat(self.state.screen_id, self.state.token, payload)
         self.last_heartbeat = time.monotonic()
+        return response
+
+    def _refresh_latest_release(self) -> None:
+        now = time.monotonic()
+        if now - self.last_release_check < 6 * 3600:
+            return
+        self.last_release_check = now
+        detected = latest_stable_version()
+        if detected:
+            self.latest_stable = detected
+            if is_newer(detected, __version__):
+                LOG.info("Une version stable du Player est disponible : %s.", detected)
+
+    def _check_installed_package(self) -> None:
+        now = time.monotonic()
+        if now - self.last_package_check < 30:
+            return
+        self.last_package_check = now
+        actual = installed_version()
+        if actual and actual != __version__:
+            LOG.info("Nouvelle version installée détectée (%s) ; redémarrage du Player.", actual)
+            self.browser.close()
+            restart_player(self.config.config_path)
+
+    def _process_update(self, update: object) -> None:
+        if not isinstance(update, dict) or update.get("status") != "authorized" or update.get("authorized") is not True:
+            return
+        request_id = str(update.get("request_id", ""))
+        target = str(update.get("target_version", ""))
+        if not request_id or request_id in self.update_requests_seen:
+            return
+        current = installed_version() or __version__
+        # Refetch GitHub immediately before acting; never trust a server-provided URL or version alone.
+        latest = latest_stable_version()
+        if not latest or target != latest or target != update.get("latest_stable_version") or not is_newer(target, current):
+            LOG.warning("Autorisation de mise à jour ignorée : la cible n'est pas la dernière version stable vérifiée.")
+            return
+        LOG.info("Mise à jour du Player autorisée vers %s.", target)
+        self.api.update_status(self.state.screen_id, self.state.token, request_id, "acknowledged")
+        self.update_requests_seen.add(request_id)
+        self.api.update_status(self.state.screen_id, self.state.token, request_id, "in_progress")
+        try:
+            install_release(target)
+        except Exception as error:
+            message = str(error).replace("\n", " ")[:500]
+            LOG.error("Mise à jour du Player échouée (%s).", type(error).__name__)
+            try:
+                self.api.update_status(self.state.screen_id, self.state.token, request_id, "failed", message)
+            except ApiError:
+                LOG.warning("Impossible de transmettre l'échec de mise à jour au serveur.")
+            return
+        self.api.update_status(self.state.screen_id, self.state.token, request_id, "completed")
+        LOG.info("Mise à jour du Player installée ; redémarrage du service.")
+        self.browser.close()
+        restart_player(self.config.config_path)
 
     def _send_trigger(self) -> None:
         try:

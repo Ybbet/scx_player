@@ -76,6 +76,12 @@ class ScoralyxApi:
             "type": trigger_type,
         }, token)
 
+    def update_status(self, screen_id: str, token: str, request_id: str, status: str, message: str = "") -> dict:
+        payload = {"screen": screen_id, "request_id": request_id, "status": status}
+        if message:
+            payload["message"] = message[:500]
+        return self.request("POST", self.config.api_url("api_ecran_mise_a_jour"), payload, token)
+
 
 def _decode(raw: bytes, status: int) -> dict:
     try:

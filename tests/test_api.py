@@ -63,13 +63,19 @@ class ApiTests(unittest.TestCase):
             self.api.heartbeat("clubhouse", TOKEN, {"state": "on"})
             self.api.event("clubhouse", TOKEN, {"type": "player_connected"})
             self.api.trigger("clubhouse", TOKEN, "actualisation")
+            self.api.update_status("clubhouse", TOKEN, "upd_123", "acknowledged")
 
-        self.assertEqual(len(requests), 4)
+        self.assertEqual(len(requests), 5)
         for request in requests:
             headers = self._headers(request)
             self.assertEqual(headers["authorization"], f"Bearer {TOKEN}")
             self.assertEqual(headers["x-scoralyx-authorization"], f"Bearer {TOKEN}")
             self.assertNotIn(TOKEN, request.full_url)
+        update_request = requests[-1]
+        self.assertTrue(update_request.full_url.endswith("page=api_ecran_mise_a_jour"))
+        self.assertEqual(json.loads(update_request.data), {
+            "screen": "clubhouse", "request_id": "upd_123", "status": "acknowledged",
+        })
 
     def test_registration_and_enrollment_status_do_not_use_final_token_headers(self):
         requests = []

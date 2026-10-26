@@ -4,6 +4,7 @@ import unittest
 from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import unquote, urlparse
+from unittest.mock import patch
 
 from scoralyx_player.browser import BLACK_PAGE
 from scoralyx_player.config import Config
@@ -13,9 +14,18 @@ from scoralyx_player.daemon import Player
 class FakeApi:
     def __init__(self):
         self.events = []
+        self.update_statuses = []
+        self.heartbeats = []
 
     def event(self, screen_id, token, data):
         self.events.append(data)
+
+    def update_status(self, screen_id, token, request_id, status, message=""):
+        self.update_statuses.append((request_id, status, message))
+
+    def heartbeat(self, screen_id, token, data):
+        self.heartbeats.append(data)
+        return {"ok": True}
 
 
 class FakeBrowser:
@@ -25,6 +35,15 @@ class FakeBrowser:
     def ensure(self, url):
         self.urls.append(url)
         return True
+
+    def running(self):
+        return True
+
+    def version(self):
+        return "Chromium test"
+
+    def close(self):
+        pass
 
 
 class FakePower:
@@ -36,6 +55,55 @@ class FakePower:
 
 
 class DaemonTests(unittest.TestCase):
+    def test_heartbeat_announces_detected_stable_version(self):
+        with tempfile.TemporaryDirectory() as directory:
+            config = Config(site_url="https://club.example.org", machine_name="clubhouse-01", state_path=Path(directory) / "state.json")
+            api, browser = FakeApi(), FakeBrowser()
+            player = Player(config, api=api, browser=browser)
+            player.state.token = "token"
+            player.state.screen_id = "clubhouse"
+            player.latest_stable = "0.6.0"
+            player._send_heartbeat({})
+            self.assertEqual(api.heartbeats[0]["latest_stable_version"], "0.6.0")
+
+    def test_only_authorized_and_verified_update_is_installed_and_reported(self):
+        with tempfile.TemporaryDirectory() as directory:
+            config = Config(site_url="https://club.example.org", machine_name="clubhouse-01", state_path=Path(directory) / "state.json")
+            api, browser = FakeApi(), FakeBrowser()
+            player = Player(config, api=api, browser=browser)
+            player.state.token = "token"
+            player.state.screen_id = "clubhouse"
+            contract = {
+                "status": "authorized", "authorized": True, "request_id": "upd_1",
+                "target_version": "0.6.0", "latest_stable_version": "0.6.0",
+            }
+            with patch("scoralyx_player.daemon.latest_stable_version", return_value="0.6.0"), \
+                 patch("scoralyx_player.daemon.installed_version", return_value="0.5.1"), \
+                 patch("scoralyx_player.daemon.install_release") as install, \
+                 patch("scoralyx_player.daemon.restart_player") as restart:
+                player._process_update(contract)
+            install.assert_called_once_with("0.6.0")
+            restart.assert_called_once_with(config.config_path)
+            self.assertEqual([status for _, status, _ in api.update_statuses], ["acknowledged", "in_progress", "completed"])
+
+    def test_available_update_without_server_authorization_is_not_installed(self):
+        with tempfile.TemporaryDirectory() as directory:
+            config = Config(site_url="https://club.example.org", machine_name="clubhouse-01", state_path=Path(directory) / "state.json")
+            player = Player(config, api=FakeApi(), browser=FakeBrowser())
+            with patch("scoralyx_player.daemon.install_release") as install:
+                player._process_update({"status": "available", "target_version": "0.6.0"})
+            install.assert_not_called()
+
+    def test_detects_package_version_change_and_restarts(self):
+        with tempfile.TemporaryDirectory() as directory:
+            config = Config(site_url="https://club.example.org", machine_name="clubhouse-01", state_path=Path(directory) / "state.json")
+            player = Player(config, api=FakeApi(), browser=FakeBrowser())
+            with patch("scoralyx_player.daemon.time.monotonic", return_value=100), \
+                 patch("scoralyx_player.daemon.installed_version", return_value="0.6.1"), \
+                 patch("scoralyx_player.daemon.restart_player") as restart:
+                player._check_installed_package()
+            restart.assert_called_once_with(config.config_path)
+
     def test_black_page_is_a_local_html_file_with_full_black_background(self):
         parsed = urlparse(BLACK_PAGE)
         self.assertEqual(parsed.scheme, "file")

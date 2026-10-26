@@ -2,7 +2,7 @@
 
 Scoralyx Player est le lecteur kiosque Linux de l’écosystème Scoralyx. Il ouvre dans Chromium la page d’affichage du club, en plein écran, avec le paramètre `ecran=<identifiant>`. Le contenu affiché est choisi par le serveur Scoralyx ; le Player applique les horaires et transmet au serveur les heartbeats, événements et déclenchements prévus par le contrat d’écran.
 
-Version : **0.5.1**. La numérotation suit SemVer. Licence : GNU GPL v3 ou ultérieure (`GPL-3.0-or-later`). Voir le fichier [`LICENSE`](LICENSE).
+Version : **0.6.0**. La numérotation suit SemVer. Licence : GNU GPL v3 ou ultérieure (`GPL-3.0-or-later`). Voir le fichier [`LICENSE`](LICENSE).
 
 ## Compatibilité et prérequis
 
@@ -66,12 +66,18 @@ Pour utiliser le Player avec un écran Scoralyx, installer sur le site les compo
 |---|---:|---|
 | SPIP | 4.4.x | Version requise par le plugin de gestion des écrans. |
 | `scx_core` | 0.1.1 ou supérieure | Dépendance requise par les plugins de gestion des écrans et d’affichage. |
-| `scx_ecrans` | 0.3.0 | Fournir l’API Player v1 pour l’enrôlement, les heartbeats, les états et les déclenchements. |
+| `scx_ecrans` | 0.7.0 | Fournir l’API Player v1, y compris le contrat de mise à jour distante autorisée. |
 | `scx_affichage` | 0.2.14 | Fournir la page `affichage_ecran` et accepter le paramètre `ecran=<identifiant>`. |
 
 Le contrat retenu suppose que l’identifiant de l’écran (`screen.id`) est aussi celui de la composition. Les versions indiquées correspondent à la base de versions utilisée pour valider cette intégration. Les autres plugins métier dépendent des contenus souhaités sur le site et ne sont pas des prérequis directs du Player.
 
 Pour les appels authentifiés à `scx_ecrans`, le Player transmet le jeton en Bearer dans les headers `Authorization` et `X-Scoralyx-Authorization`. Le second sert de fallback pour les hébergements qui retirent le header standard avant son arrivée à PHP.
+
+### Mise à jour distante
+
+Le Player vérifie périodiquement la dernière release stable du dépôt GitHub et transmet sa version au serveur dans le heartbeat. Une version disponible n’est jamais installée automatiquement. L’installation n’est lancée que si `scx_ecrans` renvoie une autorisation explicite pour cette version et si la cible correspond toujours à la dernière release stable vérifiée sur GitHub. Le Player transmet au serveur les états de prise en compte, de progression et de résultat, puis redémarre le service après succès. Une modification externe de la version installée est également détectée et provoque le redémarrage du processus pour charger le nouveau code.
+
+Ce mécanisme nécessite `scx_ecrans` 0.7.0 ou ultérieur avec le contrat d’update. L’installation s’effectue dans l’environnement virtuel du compte Player ; elle ne modifie pas les sources clonées dans `~/scx_player`.
 
 ## Récupérer les sources et installer
 

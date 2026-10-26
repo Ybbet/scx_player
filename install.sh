@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-VERSION="0.5.0"
+VERSION="0.6.0"
 PROJECT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/scoralyx-player"
 DATA_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/scoralyx-player"

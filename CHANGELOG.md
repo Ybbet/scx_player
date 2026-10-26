@@ -1,5 +1,13 @@
 # Journal des modifications
 
+## 0.6.0 — mise à jour distante autorisée
+
+- Vérifie périodiquement la dernière version stable publiée sur GitHub et la transmet dans les heartbeats.
+- Lit le bloc `update` de l'API v1 et n'installe qu'une cible explicitement autorisée, correspondant à la dernière release GitHub stable vérifiée.
+- Transmet au serveur les états `acknowledged`, `in_progress`, `completed` ou `failed` via `api_ecran_mise_a_jour`.
+- Redémarre le Player après une installation autorisée et détecte aussi un changement de version du paquet installé pendant l'exécution.
+- Ajoute des tests pour la validation SemVer, l'endpoint de suivi et le traitement des autorisations.
+
 ## 0.5.1 — correction de l’écran noir
 
 - Remplace la page noire intégrée dans une URL `data:` par un fichier HTML local inclus dans le paquet Player.
