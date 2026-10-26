@@ -1,0 +1,63 @@
+site_name: Scoralyx Player
+site_description: Le lecteur Linux pour un affichage de club piloté depuis Scoralyx.
+site_url: https://ybbet.github.io/scx_player/
+repo_name: Ybbet/scx_player
+repo_url: https://github.com/Ybbet/scx_player
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  language: fr
+  logo: assets/images/scoralyx_player.svg
+  favicon: assets/images/scoralyx_player.svg
+  palette:
+    - scheme: default
+      primary: blue
+      accent: light blue
+      toggle:
+        icon: material/brightness-7
+        name: Passer au thème sombre
+    - scheme: slate
+      primary: blue
+      accent: light blue
+      toggle:
+        icon: material/brightness-4
+        name: Passer au thème clair
+  features:
+    - navigation.instant
+    - navigation.sections
+    - navigation.top
+    - content.code.copy
+    - search.suggest
+    - search.highlight
+
+nav:
+  - Accueil: index.md
+  - Découvrir:
+      - Fonctionnement et exploitation: EXPLOITATION.md
+      - Compatibilité: COMPATIBILITE.md
+  - Installer: INSTALLATION.md
+  - Dépanner: DEPANNAGE.md
+
+plugins:
+  - search
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.highlight
+  - pymdownx.superfences
+
+extra_css:
+  - assets/stylesheets/extra.css
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/Ybbet/scx_player
+      name: Dépôt Scoralyx Player sur GitHub

@@ -2,6 +2,8 @@
 
 **Un affichage de club qui se pilote depuis Scoralyx.** Scoralyx Player transforme un mini-PC Linux relié à un écran en lecteur d’affichage numérique. Il ouvre en plein écran la page du club dans Chromium et la maintient synchronisée avec le serveur Scoralyx.
 
+📘 **[Consulter le site de documentation](https://ybbet.github.io/scx_player/)** · [Sources sur GitHub](https://github.com/Ybbet/scx_player)
+
 Le Player est conçu pour les clubs et les structures qui souhaitent diffuser leurs informations sur un écran sans en faire un poste informatique à gérer au quotidien. Les contenus et leur organisation restent pilotés côté serveur ; le Player assure la lecture, le suivi de l’écran et l’application des horaires configurés.
 
 > **Version 0.6.0** · Linux · Chromium · Licence GNU GPL v3 ou ultérieure
@@ -61,6 +63,17 @@ Les tests unitaires s’exécutent depuis la racine du dépôt :
 ```sh
 python3 -m unittest discover -s tests -v
 ```
+
+Pour prévisualiser le site documentaire avant publication :
+
+```sh
+python3 -m venv .venv
+. .venv/bin/activate
+python -m pip install -r requirements-docs.txt
+mkdocs serve
+```
+
+Pour valider la génération sans lancer le serveur local : `mkdocs build --strict`.
 
 Les publications suivent SemVer. La version est déclarée dans `pyproject.toml` et `src/scoralyx_player/__init__.py`. Le workflow GitHub vérifie leur cohérence et les tests avant de créer le tag et la release.
 

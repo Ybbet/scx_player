@@ -1,0 +1,47 @@
+:root {
+  --scoralyx-blue: #1d83d4;
+}
+
+.md-header,
+.md-tabs {
+  background-color: var(--scoralyx-blue);
+}
+
+.scoralyx-hero {
+  margin: 0 -0.8rem 2rem;
+  padding: clamp(2.5rem, 8vw, 6rem) clamp(1.25rem, 6vw, 5rem);
+  color: #fff;
+  background: linear-gradient(125deg, #102c48 0%, #14558b 55%, var(--scoralyx-blue) 100%);
+  border-radius: 0.35rem;
+}
+
+.scoralyx-hero h1 {
+  max-width: 18ch;
+  color: inherit;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  line-height: 1.08;
+}
+
+.scoralyx-hero p {
+  max-width: 66ch;
+  font-size: 1.08rem;
+}
+
+.scoralyx-hero .md-button {
+  margin: 0.4rem 0.5rem 0.2rem 0;
+}
+
+.md-typeset .grid.cards > ul > li {
+  border-top: 0.2rem solid var(--scoralyx-blue);
+}
+
+.md-typeset .grid.cards > ul > li > p:first-child {
+  font-size: 1.08rem;
+}
+
+@media screen and (max-width: 600px) {
+  .scoralyx-hero {
+    margin-right: -0.55rem;
+    margin-left: -0.55rem;
+  }
+}

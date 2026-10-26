@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 64 64" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+    <path d="M29,9L35,9L35,21L29,21L29,9ZM29,43L35,43L35,55L29,55L29,43ZM9,29L21,29L21,35L9,35L9,29ZM43,29L55,29L55,35L43,35L43,29Z" style="fill:rgb(29,131,212);fill-rule:nonzero;"/>
+    <path d="M15.7,19.9L19.9,15.7L28.4,24.2L24.2,28.4L15.7,19.9ZM35.6,39.8L39.8,35.6L48.3,44.1L44.1,48.3L35.6,39.8ZM35.6,24.2L44.1,15.7L48.3,19.9L39.8,28.4L35.6,24.2ZM15.7,44.1L24.2,35.6L28.4,39.8L19.9,48.3L15.7,44.1Z" style="fill:rgb(29,131,212);fill-rule:nonzero;"/>
+    <circle cx="32" cy="8" r="6" style="fill:rgb(29,131,212);"/>
+    <circle cx="32" cy="56" r="6" style="fill:rgb(29,131,212);"/>
+    <circle cx="8" cy="32" r="6" style="fill:rgb(29,131,212);"/>
+    <circle cx="56" cy="32" r="6" style="fill:rgb(29,131,212);"/>
+    <circle cx="14" cy="14" r="5" style="fill:rgb(29,131,212);"/>
+    <circle cx="50" cy="14" r="5" style="fill:rgb(29,131,212);"/>
+    <circle cx="14" cy="50" r="5" style="fill:rgb(29,131,212);"/>
+    <circle cx="50" cy="50" r="5" style="fill:rgb(29,131,212);"/>
+    <circle cx="32" cy="32" r="12" style="fill:rgb(29,131,212);"/>
+</svg>
