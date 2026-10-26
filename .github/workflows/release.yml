@@ -1,0 +1,99 @@
+name: Publier une version Scoralyx Player
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: scoralyx-player-release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Récupérer le dépôt
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Installer Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Exécuter les tests
+        run: PYTHONPATH=src python -m unittest discover -s tests -v
+
+      - name: Déterminer et valider la version
+        id: version
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="$(python -c 'import tomllib; print(tomllib.load(open("pyproject.toml", "rb"))["project"]["version"])')"
+          package_version="$(python -c 'from pathlib import Path; import re; text=Path("src/scoralyx_player/__init__.py").read_text(); m=re.search(r"^__version__\s*=\s*[\x27\x22]([^\x27\x22]+)[\x27\x22]", text, re.M); print(m.group(1) if m else "")')"
+          if [[ ! "$version" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]; then
+            echo "Version SemVer stable invalide dans pyproject.toml : $version" >&2
+            exit 1
+          fi
+          if [[ "$version" != "$package_version" ]]; then
+            echo "Versions incohérentes : pyproject.toml=$version, __init__.py=$package_version" >&2
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "tag=v$version" >> "$GITHUB_OUTPUT"
+
+      - name: Créer le tag s’il est absent
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          set -euo pipefail
+          git fetch --tags --force
+          if git ls-remote --exit-code --tags origin "refs/tags/$TAG" >/dev/null 2>&1; then
+            echo "Le tag $TAG existe déjà."
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git tag -a "$TAG" "$GITHUB_SHA" -m "Scoralyx Player $TAG"
+            git push origin "$TAG"
+            echo "Tag $TAG créé sur $GITHUB_SHA."
+          fi
+
+      - name: Construire l’archive d’installation épurée
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          set -euo pipefail
+          staging="$RUNNER_TEMP/scoralyx-player"
+          mkdir -p "$staging/scx_player"
+          cp README.md LICENSE install.sh renew-enrollment.sh config.example.toml pyproject.toml "$staging/scx_player/"
+          cp -R src deploy "$staging/scx_player/"
+          find "$staging/scx_player" -type d -name __pycache__ -prune -exec rm -rf {} +
+          find "$staging/scx_player" -type f \( -name '*.pyc' -o -name '.DS_Store' \) -delete
+          mkdir -p dist
+          archive="dist/scoralyx-player-v${VERSION}.zip"
+          (cd "$staging" && zip -qr "$GITHUB_WORKSPACE/$archive" scx_player)
+          echo "Archive générée : $archive"
+
+      - name: Publier la release GitHub et son archive
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.version.outputs.tag }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          set -euo pipefail
+          archive="dist/scoralyx-player-v${VERSION}.zip"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "La release $TAG existe déjà ; elle n’est pas remplacée."
+          else
+            gh release create "$TAG" "$archive" \
+              --title "Scoralyx Player $TAG" \
+              --generate-notes
+          fi
