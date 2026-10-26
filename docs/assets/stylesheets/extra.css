@@ -68,6 +68,15 @@
   margin: 2rem 0 3rem;
 }
 
+.md-typeset .scoralyx-site {
+  margin: 2rem 0;
+  padding: 1.25rem clamp(1rem, 3vw, 2rem);
+  background: var(--md-default-bg-color);
+  border-left: 0.25rem solid var(--scoralyx-blue);
+  border-radius: 0.4rem;
+  box-shadow: 0 0.25rem 1rem rgb(20 55 85 / 7%);
+}
+
 .md-typeset .scoralyx-benefits > p {
   max-width: 68ch;
   font-size: 1.05rem;

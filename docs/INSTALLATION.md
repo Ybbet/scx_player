@@ -8,10 +8,16 @@ Ce guide décrit la préparation d’un mini-PC dédié et l’installation de S
 - Une architecture compatible avec la distribution, Chromium et Python. x86_64 est la cible initiale ; les autres architectures restent à valider.
 - Un écran relié au mini-PC et un environnement graphique fonctionnel.
 - Python 3.11 ou supérieur, `venv`, Bash, Git, systemd utilisateur et Chromium. L’installateur vérifie certains composants et peut proposer l’installation de dépendances système.
-- Un accès Internet pendant l’installation pour GitHub, les dépôts de paquets de la distribution et PyPI. Au fonctionnement, le Player doit joindre le serveur Scoralyx en HTTPS.
+- Un accès Internet pendant l’installation pour GitHub, les dépôts de paquets de la distribution et PyPI. Au fonctionnement, le Player doit joindre le site Scoralyx en HTTPS.
 - Un compte Linux membre du groupe `sudo` pour installer les paquets et configurer les fonctions nécessitant les droits administrateur.
 
 Aucune configuration minimale processeur/mémoire/disque n’a été validée. Prévoir une machine qui exécute correctement Debian, son bureau graphique et Chromium à la résolution cible. Aucun port entrant vers le mini-PC n’est requis.
+
+## Préparer le site Scoralyx
+
+Le **site Scoralyx** (parfois appelé « Scoralyx Serveur ») est le site internet du club. Il repose sur SPIP et quelques plugins dédiés, installés sur un hébergement web compatible. Ces plugins fournissent notamment la gestion des écrans et les pages d’affichage.
+
+Le Player ne peut être associé qu’une fois ce site installé, accessible en HTTPS et équipé des versions compatibles indiquées dans [la matrice de compatibilité](COMPATIBILITE.md). La mise en place demande quelques bases d’administration d’un site web et de ses plugins, mais elle s’appuie sur des composants SPIP classiques et reste accessible. Si le site du club existe déjà, vérifier simplement ses versions et son accès HTTPS.
 
 ### Vérifier les droits `sudo`
 
@@ -67,7 +73,7 @@ bash install.sh
 
 L’installateur interactif demande :
 
-1. **L’URL de Scoralyx Serveur**, par exemple `https://club.example.org`, sans `spip.php` ni chemin de page.
+1. **L’URL du site Scoralyx**, par exemple `https://club.example.org`, sans `spip.php` ni chemin de page.
 2. **Le nom unique du Player**, par exemple `clubhouse-01`.
 3. **La configuration des prérequis**, si Python `venv` ou Chromium manque.
 4. **Le mode RTC**, si `rtcwake` existe et si le test de programmation d’alarme aboutit. L’installateur demande également si le firmware autorise le réveil après arrêt.
@@ -77,7 +83,7 @@ L’installateur crée un environnement Python isolé, écrit la configuration l
 
 ## Autoriser et associer le Player
 
-À la fin de l’installation, le Player demande son enrôlement au serveur. Dans l’administration SPIP, autoriser la demande, puis associer le Player à un écran existant ou créer l’écran correspondant. Le code d’appairage apparaît dans les journaux :
+À la fin de l’installation, le Player demande son enrôlement au site Scoralyx. Dans l’administration SPIP, autoriser la demande, puis associer le Player à un écran existant ou créer l’écran correspondant. Le code d’appairage apparaît dans les journaux :
 
 ```sh
 journalctl --user -u scoralyx-player.service -f

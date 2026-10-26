@@ -1,12 +1,14 @@
 # Compatibilité avec l’écosystème Scoralyx
 
-Scoralyx Player est un lecteur Linux. Pour afficher un écran géré par Scoralyx, le site doit exposer les contrats de gestion d’écran et la page d’affichage attendus par le Player.
+Scoralyx Player est un lecteur Linux. Le « serveur Scoralyx » désigne le site internet du club : un site SPIP installé sur un hébergement web et complété par quelques plugins dédiés à l’écosystème. Pour afficher un écran, ce site doit exposer les contrats de gestion d’écran et la page d’affichage attendus par le Player.
+
+Cette mise en place demande quelques bases de gestion d’un site web et de ses plugins, mais elle repose sur des composants SPIP classiques. Il n’est pas nécessaire de déployer une machine serveur particulière dans le club.
 
 ## Versions de référence
 
 | Composant | Version de référence | Fonction nécessaire |
 |---|---:|---|
-| SPIP | 4.4.x | Socle du site Scoralyx et des plugins requis. |
+| SPIP | 4.4.x | Socle du site internet Scoralyx. |
 | `scx_core` | 0.1.1 ou supérieure | Dépendance des plugins de gestion des écrans et d’affichage. |
 | `scx_ecrans` | 0.7.0 ou supérieure | Enrôlement, association, API Player v1, horaires, heartbeats et contrat de mise à jour distante autorisée. |
 | `scx_affichage` | 0.2.14 ou supérieure | Page `affichage_ecran` et paramètre `ecran=<identifiant>`. |
@@ -27,8 +29,8 @@ La configuration d’ouverture automatique est prévue pour GDM, LightDM et SDDM
 
 ## Réseau et sécurité
 
-- Le Player initie les connexions vers le serveur Scoralyx ; aucune connexion entrante vers le mini-PC n’est requise.
-- HTTPS est attendu pour les échanges avec le serveur en production.
+- Le Player initie les connexions vers le site Scoralyx ; aucune connexion entrante vers le mini-PC n’est requise.
+- HTTPS est attendu pour les échanges avec le site en production.
 - Le jeton définitif reste dans l’état local protégé du compte Player et n’est pas placé dans l’URL.
 - Les mises à jour distantes ne s’installent qu’après autorisation explicite dans l’administration Scoralyx.
 
