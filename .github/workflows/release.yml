@@ -74,7 +74,7 @@ jobs:
           staging="$RUNNER_TEMP/scoralyx-player"
           mkdir -p "$staging/scx_player"
           cp README.md LICENSE install.sh renew-enrollment.sh config.example.toml pyproject.toml "$staging/scx_player/"
-          cp -R src deploy "$staging/scx_player/"
+          cp -R src deploy docs "$staging/scx_player/"
           find "$staging/scx_player" -type d -name __pycache__ -prune -exec rm -rf {} +
           find "$staging/scx_player" -type f \( -name '*.pyc' -o -name '.DS_Store' \) -delete
           mkdir -p dist
