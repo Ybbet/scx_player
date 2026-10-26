@@ -7,40 +7,106 @@
   background-color: var(--scoralyx-blue);
 }
 
-.scoralyx-hero {
-  margin: 0 -0.8rem 2rem;
-  padding: clamp(2.5rem, 8vw, 6rem) clamp(1.25rem, 6vw, 5rem);
-  color: #fff;
-  background: linear-gradient(125deg, #102c48 0%, #14558b 55%, var(--scoralyx-blue) 100%);
-  border-radius: 0.35rem;
+.md-main {
+  background: linear-gradient(115deg, rgb(26 69 130 / 3%), rgb(194 43 68 / 3%));
 }
 
-.scoralyx-hero h1 {
+.md-typeset .scoralyx-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(12rem, 0.65fr);
+  align-items: center;
+  gap: clamp(1rem, 4vw, 4rem);
+  margin: 0 -0.8rem 2.5rem;
+  padding: clamp(2.5rem, 7vw, 5.5rem) clamp(1.25rem, 6vw, 5rem);
+  color: #fff;
+  background: linear-gradient(112deg, #123a78 0%, #1b3f7b 57%, #d02f4b 100%);
+  border-radius: 1.35rem;
+  box-shadow: 0 1.2rem 2.4rem rgb(17 45 83 / 17%);
+}
+
+.scoralyx-hero__content h1 {
   max-width: 18ch;
   color: inherit;
-  font-size: clamp(2rem, 5vw, 3.5rem);
+  margin-bottom: 0.8rem;
+  font-size: clamp(2.6rem, 6vw, 4.8rem);
   line-height: 1.08;
 }
 
-.scoralyx-hero p {
+.scoralyx-hero__content h3 {
+  color: #d7edff;
+  font-size: clamp(1.1rem, 2vw, 1.5rem);
+  font-weight: 500;
+}
+
+.scoralyx-hero__content p {
   max-width: 66ch;
   font-size: 1.08rem;
 }
 
-.scoralyx-hero .md-button {
+.scoralyx-hero__content .md-button {
   margin: 0.4rem 0.5rem 0.2rem 0;
+}
+
+.scoralyx-hero__visual {
+  display: grid;
+  min-height: 16rem;
+  place-items: center;
+  background: radial-gradient(circle, rgb(255 255 255 / 17%) 0 42%, transparent 43%);
+}
+
+.scoralyx-hero__visual img {
+  display: block;
+  width: min(100%, 16rem);
+  height: auto;
+  padding: 1.4rem;
+  background: #fff;
+  border-radius: 50%;
+  filter: drop-shadow(0 1rem 1.5rem rgb(0 0 0 / 20%));
+}
+
+.md-typeset .scoralyx-benefits {
+  margin: 2rem 0 3rem;
+}
+
+.md-typeset .scoralyx-benefits > p {
+  max-width: 68ch;
+  font-size: 1.05rem;
 }
 
 .md-typeset .grid.cards > ul > li {
   border-top: 0.2rem solid var(--scoralyx-blue);
+  box-shadow: 0 0.2rem 0.8rem rgb(20 55 85 / 7%);
 }
 
 .md-typeset .grid.cards > ul > li > p:first-child {
   font-size: 1.08rem;
 }
 
+.md-typeset .scoralyx-how {
+  margin: 2rem -0.8rem;
+  padding: clamp(1.25rem, 4vw, 3rem);
+  background: color-mix(in srgb, var(--scoralyx-blue) 8%, var(--md-default-bg-color));
+  border-radius: 1rem;
+}
+
 @media screen and (max-width: 600px) {
-  .scoralyx-hero {
+  .md-typeset .scoralyx-hero {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+    margin-right: -0.55rem;
+    margin-left: -0.55rem;
+  }
+
+  .scoralyx-hero__visual {
+    min-height: 9rem;
+    grid-row: 1;
+  }
+
+  .scoralyx-hero__visual img {
+    width: min(42vw, 10rem);
+  }
+
+  .md-typeset .scoralyx-how {
     margin-right: -0.55rem;
     margin-left: -0.55rem;
   }

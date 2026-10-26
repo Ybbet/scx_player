@@ -1,78 +1,103 @@
 ---
-title: Afficher la vie du club, simplement
-description: Présentation de Scoralyx Player, le lecteur Linux d’affichage numérique relié à Scoralyx.
+title: Scoralyx Player — l’affichage du club en grand
+description: Une solution libre pour diffuser automatiquement la vie du club sur un écran, depuis Scoralyx.
 hide:
   - navigation
 ---
 
-<div class="scoralyx-hero" markdown>
+<section class="scoralyx-hero" markdown>
+<div class="scoralyx-hero__content" markdown>
 
-# L’affichage du club, toujours au bon endroit
+# Votre club. En grand.
 
-Les informations utiles à la vie du club méritent d’être visibles là où les adhérents, les bénévoles et les visiteurs se retrouvent.
+### Un affichage de club qui se pilote depuis Scoralyx.
 
-**Scoralyx Player transforme un mini-PC Linux en écran d’affichage autonome.** Il ouvre en plein écran la page de votre club et applique les horaires définis dans Scoralyx.
+Scoralyx Player transforme un mini-PC Linux relié à un écran en lecteur d’affichage numérique. Il ouvre en plein écran la page du club dans Chromium et la maintient synchronisée avec le serveur Scoralyx.
 
 [Découvrir l’installation](INSTALLATION.md){ .md-button .md-button--primary }
 [Voir le projet sur GitHub](https://github.com/Ybbet/scx_player){ .md-button }
 
 </div>
+<div class="scoralyx-hero__visual">
+  <img src="assets/images/scoralyx_player.svg" alt="Logo Scoralyx Player">
+</div>
+</section>
 
-## Un écran piloté depuis le serveur du club
+<section class="scoralyx-benefits" markdown>
 
-Scoralyx Player est le lecteur installé sur le mini-PC raccordé à l’écran. Il affiche la page que le serveur Scoralyx prépare pour cet écran. Les responsables gardent ainsi la maîtrise du contenu dans l’outil du club, tandis que le Player assure la diffusion en mode kiosque.
+## La vie du club, à la bonne place
+
+Les informations utiles gagnent à être visibles là où les adhérents, les bénévoles et les visiteurs se retrouvent.
 
 <div class="grid cards" markdown>
 
--   :material-calendar-clock: **Diffuser les informations au bon moment**
+-   :material-calendar-month-outline: **Un écran qui suit la vie du club**
 
-    Le Player applique les périodes d’activité et les horaires transmis par le serveur. Selon le matériel, il peut aussi arrêter puis réveiller le mini-PC.
+    Programme, événements, résultats, messages ou match en cours : les contenus sont préparés côté serveur selon les modules et les réglages du club.
 
--   :material-monitor-dashboard: **Garder la gestion au même endroit**
+-   :material-clock-outline: **Une diffusion qui suit les horaires**
 
-    Les contenus ne sont pas définis dans le Player. Ils sont gérés côté Scoralyx et affichés par l’écran associé.
+    Le serveur indique quand l’écran doit être actif. Si le mini-PC et son firmware le permettent, il peut aussi s’éteindre puis se réveiller automatiquement.
 
--   :material-refresh: **Suivre l’état de l’écran**
+-   :material-cog-sync-outline: **Un pilotage centralisé**
 
-    Le Player transmet des heartbeats, événements et déclenchements au serveur pour permettre le suivi prévu par l’écosystème.
+    Le Player ne choisit pas les diapositives. Il affiche la page associée à son écran et laisse la gestion des contenus dans Scoralyx.
 
--   :material-shield-check: **Garder la main sur les mises à jour**
+-   :material-open-source-initiative: **Une solution libre et maîtrisable**
 
-    Une nouvelle version peut être signalée, mais une mise à jour distante n’est installée qu’après autorisation explicite dans l’administration Scoralyx.
+    Le Player est publié sous GNU GPL v3 ou ultérieure et fonctionne sur un mini-PC Linux standard, sans lecteur propriétaire dédié.
+
+</div>
+</section>
+
+<section class="scoralyx-how" markdown>
+
+## Du serveur à l’écran, en quelques étapes
+
+<div class="grid cards" markdown>
+
+-   **1. Installer**
+
+    Lancer l’installateur interactif sur le mini-PC, saisir l’adresse du serveur Scoralyx et choisir un nom unique pour le Player.
+
+-   **2. Associer**
+
+    Autoriser la demande d’enrôlement dans l’administration puis associer le Player à l’écran du club.
+
+-   **3. Diffuser**
+
+    Au démarrage de la session graphique, Chromium s’ouvre en plein écran et affiche la page de l’écran associé.
 
 </div>
 
-## Comment cela fonctionne
+Le Player communique avec le serveur en HTTPS. Il n’a besoin d’aucun port entrant ouvert sur le mini-PC.
 
-1. Installer Scoralyx Player sur un mini-PC Linux connecté à l’écran.
-2. Indiquer l’URL du serveur Scoralyx et le nom unique du Player dans l’installateur.
-3. Autoriser le Player dans l’administration du serveur et l’associer à l’écran souhaité.
-4. Laisser le mini-PC démarrer sur sa session graphique : Chromium ouvre alors la page d’affichage en plein écran.
+[Suivre le guide d’installation](INSTALLATION.md){ .md-button .md-button--primary }
 
-Le Player n’a pas besoin de port entrant ouvert. Il communique avec le serveur Scoralyx en HTTPS et transmet l’identifiant de l’écran dans l’adresse de la page d’affichage.
+</section>
 
-## Une solution pour les clubs et lieux de vie
+## Pensé pour un affichage autonome
 
-Scoralyx Player convient aux associations et structures qui disposent d’un écran d’information et souhaitent automatiser sa diffusion à partir de leur site Scoralyx. La solution s’appuie sur un mini-PC standard plutôt que sur un lecteur propriétaire dédié.
+Scoralyx Player convient aux clubs et structures qui disposent d’un écran d’information et souhaitent automatiser sa diffusion à partir de leur site Scoralyx. Il s’appuie sur un mini-PC Linux relié à l’écran ; l’administration et les contenus restent côté serveur.
 
-Le Player est un composant de lecture : il ne crée pas les contenus et ne remplace pas l’administration Scoralyx. Les diapositives, leur ordre et les données affichées dépendent des composants installés et configurés sur le serveur.
+La préparation Digital Signage peut configurer l’ouverture automatique de session et désactiver la veille dans les environnements pris en charge. Si le matériel permet le réveil RTC, le Player peut programmer l’arrêt et le redémarrage électrique. Sinon, il maintient la machine active et affiche une page noire hors plage.
 
-## Ce qu’il faut prévoir
+## Une installation accessible, avec quelques prérequis
 
-| Besoin | À prévoir |
+| À prévoir | Détail |
 |---|---|
 | Matériel | Mini-PC Linux, sortie vidéo, écran et connexion réseau stable. |
-| Système | Debian 13 est la cible principale. Ubuntu et les autres distributions Linux compatibles restent à valider sur matériel. |
-| Session graphique | Chromium, Python 3.11+, systemd utilisateur et ouverture de session graphique automatique. |
-| Installation | Usage d’un terminal, clonage Git, notions d’administration Linux et accès `sudo`. |
-| Serveur | Un site Scoralyx accessible en HTTPS et les versions de plugins compatibles avec le Player. |
+| Système | Debian 13 est la cible principale. Ubuntu et les autres distributions Linux restent à valider sur le matériel choisi. |
+| Logiciels | Chromium, Python 3.11+, Bash, systemd utilisateur et une session graphique. |
+| Mise en place | Savoir utiliser un terminal, cloner un dépôt Git et disposer d’un accès `sudo`. |
+| Serveur | Un site Scoralyx joignable en HTTPS avec les versions compatibles des plugins. |
 
-Aucun minimum CPU/RAM/stockage n’a encore été validé. Le réveil après extinction complète dépend aussi du BIOS/UEFI et du matériel RTC ; il doit être testé sur le mini-PC retenu.
+Aucun minimum de processeur, mémoire ou stockage n’a encore été validé. Le réveil depuis un arrêt complet dépend du BIOS/UEFI et du matériel RTC : le tester sur le mini-PC retenu. La configuration de connexion automatique supprime la demande de mot de passe au démarrage ; réserver l’équipement à l’affichage et le protéger physiquement.
 
-[Lire les prérequis détaillés](COMPATIBILITE.md) · [Préparer le mini-PC et installer](INSTALLATION.md)
+[Voir la compatibilité détaillée](COMPATIBILITE.md) · [Consulter les guides](INSTALLATION.md)
 
-## Une solution libre
+## Ouvert et évolutif
 
-Scoralyx Player est publié sous **GNU GPL v3 ou ultérieure**. Le dépôt est ouvert aux retours et contributions. La version actuelle est **0.6.0** ; les versions suivent SemVer.
+Scoralyx Player est un logiciel libre, versionné selon SemVer. Les mises à jour distantes ne sont pas appliquées sans accord : une nouvelle version est proposée au serveur, puis doit être autorisée dans l’administration Scoralyx.
 
-[Consulter les sources sur GitHub](https://github.com/Ybbet/scx_player)
+**Version actuelle : 0.6.0** · [Code source et contributions sur GitHub](https://github.com/Ybbet/scx_player)
