@@ -3,6 +3,7 @@ import time
 import unittest
 from datetime import datetime, timezone
 from pathlib import Path
+from urllib.parse import unquote, urlparse
 
 from scoralyx_player.browser import BLACK_PAGE
 from scoralyx_player.config import Config
@@ -35,6 +36,14 @@ class FakePower:
 
 
 class DaemonTests(unittest.TestCase):
+    def test_black_page_is_a_local_html_file_with_full_black_background(self):
+        parsed = urlparse(BLACK_PAGE)
+        self.assertEqual(parsed.scheme, "file")
+        html = Path(unquote(parsed.path)).read_text(encoding="utf-8")
+        self.assertIn("background: #000", html)
+        self.assertIn("width: 100%", html)
+        self.assertIn("height: 100%", html)
+
     def test_refreshes_configuration_near_server_transition(self):
         with tempfile.TemporaryDirectory() as directory:
             config = Config(

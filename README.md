@@ -2,7 +2,7 @@
 
 Scoralyx Player est le lecteur kiosque Linux de l’écosystème Scoralyx. Il ouvre dans Chromium la page d’affichage du club, en plein écran, avec le paramètre `ecran=<identifiant>`. Le contenu affiché est choisi par le serveur Scoralyx ; le Player applique les horaires et transmet au serveur les heartbeats, événements et déclenchements prévus par le contrat d’écran.
 
-Version : **0.5.0**. La numérotation suit SemVer. Licence : GNU GPL v3 ou ultérieure (`GPL-3.0-or-later`). Voir le fichier [`LICENSE`](LICENSE).
+Version : **0.5.1**. La numérotation suit SemVer. Licence : GNU GPL v3 ou ultérieure (`GPL-3.0-or-later`). Voir le fichier [`LICENSE`](LICENSE).
 
 ## Compatibilité et prérequis
 
@@ -157,7 +157,7 @@ Les fichiers sont placés dans `~/.config/scoralyx-player/`, `~/.local/share/sco
 
 ## Horaires et alimentation
 
-Le serveur reste la source de vérité. Le Player applique `state.expected`, `next_start` et `next_stop` sans recalculer les créneaux ou exceptions. Lorsque le mode RTC est actif, il programme le prochain réveil puis arrête le mini-PC à l’état `off`. Le Player ne met pas séparément hors tension l’écran externe.
+Le serveur reste la source de vérité. Le Player applique `state.expected`, `next_start` et `next_stop` sans recalculer les créneaux ou exceptions. Lorsque l’état est `off`, Chromium affiche le fichier HTML noir inclus localement dans le paquet Player. Lorsque le mode RTC est actif, le Player programme le prochain réveil puis arrête le mini-PC à l’état `off`. Il ne met pas séparément hors tension l’écran externe.
 
 La programmation d’une alarme ne garantit pas que le mini-PC se réveillera après un arrêt S5 : cela dépend du BIOS/UEFI, de la carte mère et de l’horloge RTC. Le test de l’installateur vérifie la programmation de l’alarme, pas le réveil complet depuis l’arrêt. Vérifier ce comportement sur le matériel avant de compter sur le démarrage automatique. Lorsque le mode RTC n’est pas utilisable, la machine reste allumée et Chromium affiche une page noire hors plage.
 

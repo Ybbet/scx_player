@@ -1,5 +1,10 @@
 # Journal des modifications
 
+## 0.5.1 — correction de l’écran noir
+
+- Remplace la page noire intégrée dans une URL `data:` par un fichier HTML local inclus dans le paquet Player.
+- Garantit un fond noir sur toute la surface de la fenêtre Chromium lorsque l’état de l’écran est `off`.
+
 ## 0.5.0 — préparation Digital Signage
 
 - Ajoute un script autonome de diagnostic et de configuration des conditions de session graphique : ouverture automatique, veille, verrouillage et lancement au démarrage.

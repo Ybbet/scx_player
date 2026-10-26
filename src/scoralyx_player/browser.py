@@ -6,9 +6,10 @@ import signal
 import shutil
 import subprocess
 import time
+from pathlib import Path
 
 LOG = logging.getLogger(__name__)
-BLACK_PAGE = "data:text/html,<html><head><meta name='viewport' content='width=device-width,initial-scale=1'></head><body style='margin:0;background:#000'></body></html>"
+BLACK_PAGE = Path(__file__).with_name("blank.html").resolve().as_uri()
 
 
 class Browser:
